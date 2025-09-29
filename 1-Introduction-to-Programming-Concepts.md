@@ -133,7 +133,7 @@ The Fibonacci sequence is another famous mathematical sequence defined recursive
 
 You will need two base cases in your `if/elif/else` structure.
 
-</detais>
+</details>
 
 ### Combinations
 
