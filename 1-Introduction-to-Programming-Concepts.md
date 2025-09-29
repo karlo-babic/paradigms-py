@@ -381,11 +381,11 @@ def slow_pascal(n):
 
 - **Why is this slow?**
     <details>
-        <summary>Answer</summary>
-        
-        Calling `slow_pascal(n)` results in **two** separate calls to `slow_pascal(n-1)`. Each of those calls results in two calls to `slow_pascal(n-2)`, and so on. The number of calls grows exponentially.
+    <summary>Answer</summary>
+    
+    Calling `slow_pascal(n)` results in **two** separate calls to `slow_pascal(n-1)`. Each of those calls results in two calls to `slow_pascal(n-2)`, and so on. The number of calls grows exponentially.
 
-        A single call to `slow_pascal(30)` will end up calling `slow_pascal(1)` over 500 million times (2<sup>29</sup> times, to be exact).
+    A single call to `slow_pascal(30)` will end up calling `slow_pascal(1)` over 500 million times (2<sup>29</sup> times, to be exact).
         
     </details>
 
@@ -418,10 +418,10 @@ def fast_pascal(n):
 
 - What is the time complexity of `slow_pascal(n)` and `fast_pascal(n)`?
     <details>
-        <summary>Answer</summary>
-        
-        - `slow_pascal(n)`: The number of calls roughly doubles for each increment of `n`. This is **exponential time**, often written as O(2<sup>n</sup>).
-        - `fast_pascal(n)`: The function is called `n` times. In each call, we do work proportional to the length of the row, which is also `n`. This is **polynomial time**, roughly O(n<sup>2</sup>).
+    <summary>Answer</summary>
+    
+    - `slow_pascal(n)`: The number of calls roughly doubles for each increment of `n`. This is **exponential time**, often written as O(2<sup>n</sup>).
+    - `fast_pascal(n)`: The function is called `n` times. In each call, we do work proportional to the length of the row, which is also `n`. This is **polynomial time**, roughly O(n<sup>2</sup>).
 
     </details>
 
@@ -496,9 +496,9 @@ A generator is a special kind of function that, instead of `return`ing a single 
 #### Checkpoint
 - In the `lazy_ints_from` generator, what would happen if you replaced `yield current` with `return current`?
     <details>
-        <summary>Answer</summary>
-        
-        The function would no longer be a generator. It would execute the loop once, `return` the initial value of `current` (`n`), and then terminate completely. It could not produce a sequence of values.
+    <summary>Answer</summary>
+    
+    The function would no longer be a generator. It would execute the loop once, `return` the initial value of `current` (`n`), and then terminate completely. It could not produce a sequence of values.
         
     </details>
 
@@ -510,9 +510,9 @@ A generator is a special kind of function that, instead of `return`ing a single 
     ```
 - What happens if you try to call `sum_list(lazy_ints_from(0))`? Is this a good idea? Why or why not?
     <details>
-        <summary>Hint</summary>
-        
-        The recursive `sum_list` needs to reach the end of the list to find its base case. Does an infinite list have an end?
+    <summary>Hint</summary>
+    
+    The recursive `sum_list` needs to reach the end of the list to find its base case. Does an infinite list have an end?
         
     </details>
 
@@ -555,15 +555,15 @@ print(ten_rows)
 - Imagine you have a function `get_n_pascal_rows(n)` that eagerly calculates and returns a list of the first `n` rows.
 - Think of a scenario where you first need 10 rows, and then later you need the 11th row. Why is the generator version (`pascal_rows_generator`) more optimal in this situation?
     <details>
-        <summary>Hint</summary>
+    <summary>Hint</summary>
+    
+    When you call `get_n_pascal_rows(10)` and then `get_n_pascal_rows(11)`, how many rows are being recalculated? What about the generator version?
+    
+    <details>
+    <summary>Answer</summary>
+    
+    The eager function `get_n_pascal_rows(11)` would have to recalculate the first 10 rows from scratch. The generator, however, maintains its state. It already has the 10th row computed and can generate the 11th row in a single, efficient step.
         
-        When you call `get_n_pascal_rows(10)` and then `get_n_pascal_rows(11)`, how many rows are being recalculated? What about the generator version?
-        
-        <details>
-            <summary>Answer</summary>
-            
-            The eager function `get_n_pascal_rows(11)` would have to recalculate the first 10 rows from scratch. The generator, however, maintains its state. It already has the 10th row computed and can generate the 11th row in a single, efficient step.
-            
-        </details>
+    </details>
     </details>
 
