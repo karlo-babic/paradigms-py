@@ -35,7 +35,7 @@ However, if you are curious and wish to experiment with the Oz examples directly
 ---
 
 <div align="center"><b>
-  <a href="README.md" style="font-size:64px; text-decoration:none"> < </a>
-  <a href="Contents.md" style="font-size:64px; text-decoration:none"> ^ </a>
+  <a href="README.html" style="font-size:64px; text-decoration:none"> < </a>
+  <a href="Contents.html" style="font-size:64px; text-decoration:none"> ^ </a>
   <a href="1-Introduction-to-Programming-Concepts.html" style="font-size:64px; text-decoration:none"> > </a>
 </b></div>
