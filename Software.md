@@ -12,7 +12,7 @@ Python is the primary language we will use for all examples, assignments, and pr
     python3 --version
     # or on some systems, python --version
     ```
-- **Installation:** If you don't have the correct version, you can download it from the [official website](https://www.python.org/downloads/):
+- **Installation:** If you don't have the correct version, you can download it from the [official website](https://www.python.org/downloads/).
 
 ### Code Editor: Visual Studio Code
 
