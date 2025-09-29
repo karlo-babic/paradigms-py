@@ -1,7 +1,7 @@
 # 1. Introduction to Programming Concepts
 
-> "In reality, programming languages are how programmers express and communicate ideas — and the audience for those ideas is other programmers, not computers. The reason: the computer can take care of itself, but programmers are always working with other programmers, and poorly communicated ideas can cause expensive flops."  
-> - Guido van Rossum, creator of Python
+>"In reality, programming languages are how programmers express and communicate ideas — and the audience for those ideas is other programmers, not computers. The reason: the computer can take care of itself, but programmers are always working with other programmers, and poorly communicated ideas can cause expensive flops."  
+>\- Guido van Rossum, creator of Python
 
 - In this chapter, you will get introduced to the most important concepts in programming.
     - Later chapters will give a deeper understanding of these concepts (and add other concepts).
@@ -117,9 +117,11 @@ The factorial of a non-negative integer `n`, denoted `n!`, is the product of all
 
 #### Checkpoint
 <details>
-<summary>In the recursive `fact(n)` function, what is the **base case** and what is the **recursive step**?</summary>
+<summary>In the recursive `fact(n)` function, what is the base case and what is the recursive step?</summary>
+
 - **Base Case:** `if n == 0: return 1`. This is the condition that stops the recursion.
 - **Recursive Step:** `return n * fact(n - 1)`. This is where the function calls itself with a smaller version of the problem.
+
 </details>
 
 #### Exercise: The Fibonacci Sequence
@@ -128,7 +130,9 @@ The Fibonacci sequence is another famous mathematical sequence defined recursive
 - Write a Python function `fib(n)` that calculates the nth Fibonacci number.
 <details>
 <summary>Hint</summary>
+
 You will need two base cases in your `if/elif/else` structure.
+
 </detais>
 
 ### Combinations
@@ -255,7 +259,9 @@ Manually checking list length and slicing can be clumsy. A more elegant and powe
 - Handle the edge cases: what should happen if the list is empty or has only one element? (It should return the list unchanged).
 <details>
 <summary>Hint</summary>
+
 For a list with two or more elements, you can deconstruct it into three parts: the first element, the middle elements, and the last element. Then, reconstruct it in a new order. The `match [first, *middle, last]:` pattern is perfect for this.
+
 </details>
 
 ## 5. Functions over Lists
@@ -349,6 +355,7 @@ def sum_list(numbers):
         case [head, *tail]:
             return head + sum_list(tail)
 ```
+
 </details>
 
 ## 6. Complexity
@@ -375,9 +382,11 @@ def slow_pascal(n):
 - **Why is this slow?**
     <details>
         <summary>Answer</summary>
+        
         Calling `slow_pascal(n)` results in **two** separate calls to `slow_pascal(n-1)`. Each of those calls results in two calls to `slow_pascal(n-2)`, and so on. The number of calls grows exponentially.
 
         A single call to `slow_pascal(30)` will end up calling `slow_pascal(1)` over 500 million times (2<sup>29</sup> times, to be exact).
+        
     </details>
 
 ### The Solution: Store and Reuse
@@ -410,8 +419,10 @@ def fast_pascal(n):
 - What is the time complexity of `slow_pascal(n)` and `fast_pascal(n)`?
     <details>
         <summary>Answer</summary>
+        
         - `slow_pascal(n)`: The number of calls roughly doubles for each increment of `n`. This is **exponential time**, often written as O(2<sup>n</sup>).
         - `fast_pascal(n)`: The function is called `n` times. In each call, we do work proportional to the length of the row, which is also `n`. This is **polynomial time**, roughly O(n<sup>2</sup>).
+
     </details>
 
 Exponential time algorithms are generally considered impractical for anything but small inputs.
@@ -437,7 +448,9 @@ print(f"Calculation took {end_time - start_time:.4f} seconds.")
 
 <details>
 <summary>Hint</summary>
+
 Create a dictionary `memo = {}` outside the function. Inside the function, before you compute `fib(n)`, check if `n` is already a key in `memo`. If it is, return the stored value immediately. If not, compute the result, store it in `memo`, and then return it.
+
 </details>
 
 ## 7. Lazy Evaluation
@@ -484,7 +497,9 @@ A generator is a special kind of function that, instead of `return`ing a single 
 - In the `lazy_ints_from` generator, what would happen if you replaced `yield current` with `return current`?
     <details>
         <summary>Answer</summary>
+        
         The function would no longer be a generator. It would execute the loop once, `return` the initial value of `current` (`n`), and then terminate completely. It could not produce a sequence of values.
+        
     </details>
 
 #### Exercise 1
@@ -496,7 +511,9 @@ A generator is a special kind of function that, instead of `return`ing a single 
 - What happens if you try to call `sum_list(lazy_ints_from(0))`? Is this a good idea? Why or why not?
     <details>
         <summary>Hint</summary>
+        
         The recursive `sum_list` needs to reach the end of the list to find its base case. Does an infinite list have an end?
+        
     </details>
 
 ### Lazy Calculation of Pascal's Triangle
@@ -539,10 +556,14 @@ print(ten_rows)
 - Think of a scenario where you first need 10 rows, and then later you need the 11th row. Why is the generator version (`pascal_rows_generator`) more optimal in this situation?
     <details>
         <summary>Hint</summary>
+        
         When you call `get_n_pascal_rows(10)` and then `get_n_pascal_rows(11)`, how many rows are being recalculated? What about the generator version?
+        
         <details>
             <summary>Answer</summary>
+            
             The eager function `get_n_pascal_rows(11)` would have to recalculate the first 10 rows from scratch. The generator, however, maintains its state. It already has the 10th row computed and can generate the 11th row in a single, efficient step.
+            
         </details>
     </details>
 
