@@ -25,12 +25,12 @@ aux_links:
   "View on GitHub":
     - "https://github.com/karlo-babic/paradigms-py"
 
-# ----------------- DEFAULT SETTINGS ----------------- #
-# Set defaults for all pages
+# ----------------- DEFAULT PAGE SETTINGS ----------------- #
+# Apply settings to all pages by default.
 defaults:
-  - scope:
-      path: "" # an empty string here means all files in the project
+  -
+    scope:
+      path: "" # An empty string here means all files in the project
       type: "pages"
     values:
-      layout: "default"
       toc: true

@@ -21,8 +21,6 @@ To ground these powerful ideas in a modern, practical context, we will use **Pyt
 
 ---
 
-An overview of the course can be found in [Contents](Contents.md).
-
 To get started, please set up your development environment by following the instructions in [Software](Software.md).
 
 After the software setup, you can begin with [1. Introduction to Programming Concepts](1-Introduction-to-Programming-Concepts.md).
