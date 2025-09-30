@@ -7,6 +7,8 @@ has_toc: true
 
 # Main heading
 
+{:toc}
+
 ## Section 1
 Some content here.
 
