@@ -1,3 +1,9 @@
+---
+layout: default
+title: 1. Intro to Programming Concepts
+nav_order: 3
+---
+
 # 1. Introduction to Programming Concepts
 
 >"In reality, programming languages are how programmers express and communicate ideas — and the audience for those ideas is other programmers, not computers. The reason: the computer can take care of itself, but programmers are always working with other programmers, and poorly communicated ideas can cause expensive flops."  
@@ -568,8 +574,3 @@ print(ten_rows)
     </details>
 
 ## To be continued...
-
-<div align="center"><b>
-  <a href="Software.html" style="font-size:64px; text-decoration:none"> < </a>
-  <a href="Contents.html" style="font-size:64px; text-decoration:none"> ^ </a>
-</b></div>

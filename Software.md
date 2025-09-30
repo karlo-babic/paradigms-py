@@ -1,3 +1,9 @@
+---
+layout: default
+title: Software Setup
+nav_order: 2
+---
+
 # Software
 
 This page guides you through setting up the necessary software for the course. The primary requirement is a working Python environment. The installation of the Mozart/Oz system is optional.
@@ -31,11 +37,3 @@ However, if you are curious and wish to experiment with the Oz examples directly
 - If on Windows:
     - [Download](https://sourceforge.net/projects/mozart-oz/files/v2.0.1/) windows installation (exe)
 - After installing, you can run the "Mozart Programming System," which starts an environment for Oz development.
-
----
-
-<div align="center"><b>
-  <a href="README.html" style="font-size:64px; text-decoration:none"> < </a>
-  <a href="Contents.html" style="font-size:64px; text-decoration:none"> ^ </a>
-  <a href="1-Introduction-to-Programming-Concepts.html" style="font-size:64px; text-decoration:none"> > </a>
-</b></div>

@@ -1,3 +1,9 @@
+---
+layout: home
+title: Home
+nav_order: 1
+---
+
 # Programming Paradigms and Languages
 
 >"A programming language is like a natural, human language in that it favors certain metaphors, images, and ways of thinking."  
@@ -31,10 +37,3 @@ The core philosophy of this course is based on the CTM textbook. The other texts
 - [Code Complete: A Practical Handbook of Software Construction (1993)](https://www.goodreads.com/book/show/4845.Code_Complete)
 
 <img src="https://www.info.ucl.ac.be/~pvr/paradigmsDIAGRAMeng108.jpg">
-
----
-
-<div align="center"><b>
-  <a href="Contents.html" style="font-size:64px; text-decoration:none"> ^ </a>
-  <a href="Software.html" style="font-size:64px; text-decoration:none"> > </a>
-</b></div>
