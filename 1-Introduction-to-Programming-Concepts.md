@@ -2,12 +2,9 @@
 layout: default
 title: "1. Intro to Programming Concepts"
 nav_order: 3
-has_toc: true
 ---
 
 # 1. Introduction to Programming Concepts
-
-{:toc}
 
 >"In reality, programming languages are how programmers express and communicate ideas — and the audience for those ideas is other programmers, not computers. The reason: the computer can take care of itself, but programmers are always working with other programmers, and poorly communicated ideas can cause expensive flops."  
 >\- Guido van Rossum, creator of Python
