@@ -2,6 +2,7 @@
 layout: default
 title: 1. Intro to Programming Concepts
 nav_order: 3
+toc: true
 ---
 
 # 1. Introduction to Programming Concepts
