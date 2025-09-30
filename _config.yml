@@ -18,19 +18,9 @@ remote_theme: just-the-docs/just-the-docs
 
 # (Optional) Set a default color scheme. 
 # 'light', 'dark', or omit to respect user's browser/OS setting.
-# color_scheme: light
+color_scheme: light
 
 # (Optional but Recommended) Add a link to the GitHub repo in the header
 aux_links:
   "View on GitHub":
     - "https://github.com/karlo-babic/paradigms-py"
-
-# ----------------- DEFAULT PAGE SETTINGS ----------------- #
-# Apply settings to all pages by default.
-defaults:
-  -
-    scope:
-      path: "" # An empty string here means all files in the project
-      type: "pages"
-    values:
-      toc: true
