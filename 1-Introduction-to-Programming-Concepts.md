@@ -14,13 +14,13 @@ nav_order: 3
 
 ## Table of contents
 
-- [1. Calculator](#1.-Calculator)
-- [2. Variables](#2.-Variables)
-- [3. Functions](#3.-Functions)
-- [4. Lists](#4.-Lists)
-- [5. Functions over Lists](#5.-Functions-over-Lists)
-- [6. Complexity](#6.-Complexity)
-- [7. Lazy Evaluation](#7.-Lazy-Evaluation)
+- [1. Calculator](#calculator)
+- [2. Variables](#variables)
+- [3. Functions](#functions)
+- [4. Lists](#lists)
+- [5. Functions over Lists](#functions-over-Lists)
+- [6. Complexity](#complexity)
+- [7. Lazy Evaluation](#lazy-Evaluation)
 
 ## 1. Calculator
 One of the simplest and most immediate things a programming environment can do is perform calculations. This is a great way to verify your setup and get a feel for the language's syntax.
