@@ -38,7 +38,7 @@ Variables are names used to store and refer to values. Using variables allows us
 In some programming models, a variable is like a mathematical constant: once you give it a value, it never changes. This is known as **single assignment** or immutable binding.
 
 - The Oz language enforces this. The `declare` statement creates a new variable and binds it to a value.
-    ```oz
+    ```erlang
     declare
     V = 9999 * 9999
     {Browse V*V}
@@ -88,7 +88,7 @@ The factorial of a non-negative integer `n`, denoted `n!`, is the product of all
 
 - The Oz implementation mirrors the mathematical definition closely using an `if/else` expression.
 
-    ```oz
+    ```erlang
     declare
     fun {Fact N}
         if N==0 then
@@ -150,7 +150,7 @@ We can build more complex functions by composing simpler ones. This is known as 
 
 #### Oz Definition
 
-```oz
+```erlang
 declare
 fun {Comb N R}
     {Fact N} div ({Fact R}*{Fact N-R})
@@ -199,7 +199,7 @@ This "Head/Tail" structure is the fundamental building block of lists in many fu
 - In Oz (and languages like Lisp), a list is explicitly a chain of links. Each link, often called a [cons cell](https://en.wikipedia.org/wiki/Cons), contains two things: a value (the head) and a reference to the rest of the chain (the tail). The chain ends with a special `nil` value.
 - `[6 7]` is represented as `6 -> 7 -> nil`.
 - The `H|T` syntax (pronounced "H-bar-T") is used to construct a list from a head `H` and a tail `T`.
-    ```oz
+    ```erlang
     declare
     H = 5
     T = [6 7 8]
@@ -233,7 +233,7 @@ Manually checking list length and slicing can be clumsy. A more elegant and powe
 
 #### Conceptual Model: `case` in Oz
 - Oz uses the `case` statement to match a list against the `H|T` pattern, automatically binding the head to `H` and the tail to `T`.
-    ```oz
+    ```erlang
     declare
     L = [5 6 7 8]
     case L of H|T then
