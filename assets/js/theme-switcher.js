@@ -1,69 +1,60 @@
+// Wait for the page to load and for the jtd theme object to be available
 document.addEventListener('DOMContentLoaded', function() {
-  const themeSwitcher = {
-    // A state property to hold the current theme
-    currentTheme: localStorage.getItem('theme') || 'system',
-
-    // The button element
-    button: null,
-
-    // Initialize the theme switcher
-    init: function() {
-      // Create the button
-      this.button = document.createElement('button');
-      this.button.className = 'btn js-toggle-theme';
-      this.button.setAttribute('aria-label', 'Toggle theme');
-      
-      // Add event listener
-      this.button.addEventListener('click', () => this.toggleTheme());
-
-      // Insert the button into the header
-      const siteHeader = document.querySelector('.site-header');
-      if (siteHeader) {
-        siteHeader.appendChild(this.button);
-      }
-
-      // Apply the theme on initial load
-      this.applyTheme();
-    },
-
-    // Apply the theme to the <html> element and update the button icon
-    applyTheme: function() {
-      if (this.currentTheme === 'dark') {
-        document.documentElement.setAttribute('data-jp-theme', 'dark');
-        this.button.innerHTML = '☀️'; // Sun icon for switching to light
-      } else if (this.currentTheme === 'light') {
-        document.documentElement.setAttribute('data-jp-theme', 'light');
-        this.button.innerHTML = '🌙'; // Moon icon for switching to dark
-      } else {
-        // For 'system' preference, remove the attribute to let CSS media queries work
-        document.documentElement.removeAttribute('data-jp-theme');
-        // Check what the system preference is to display the correct next-state icon
-        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-            this.button.innerHTML = '☀️'; // System is dark, next click is light
-        } else {
-            this.button.innerHTML = '🌙'; // System is light, next click is dark
-        }
-      }
-    },
-
-    // Toggle the theme and save the preference
-    toggleTheme: function() {
-      const systemPrefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-
-      if (this.currentTheme === 'system') {
-        // If current is system, switch to the opposite of the system preference
-        this.currentTheme = systemPrefersDark ? 'light' : 'dark';
-      } else if (this.currentTheme === 'dark') {
-        this.currentTheme = 'light';
-      } else {
-        this.currentTheme = 'dark';
-      }
-
-      localStorage.setItem('theme', this.currentTheme);
-      this.applyTheme();
+  
+  // The theme's own JS might initialize after this script, so we poll for `jtd.setTheme`
+  function initializeThemeSwitcher() {
+    if (typeof jtd === 'undefined' || typeof jtd.setTheme !== 'function') {
+      setTimeout(initializeThemeSwitcher, 50); // Try again in 50ms
+      return;
     }
-  };
 
-  // Initialize the theme switcher logic
-  themeSwitcher.init();
+    const themeSwitcher = {
+      // Use a sensible default, then check localStorage
+      currentTheme: (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light',
+      button: null,
+
+      init: function() {
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+          this.currentTheme = savedTheme;
+        }
+
+        this.button = document.createElement('button');
+        this.button.className = 'btn js-toggle-theme';
+        this.button.addEventListener('click', () => this.toggleTheme());
+
+        const siteHeader = document.querySelector('.site-header');
+        if (siteHeader) {
+          siteHeader.appendChild(this.button);
+        }
+
+        // Apply theme on initial load
+        this.applyTheme();
+      },
+
+      applyTheme: function() {
+        // Use the official just-the-docs function to set the theme
+        jtd.setTheme(this.currentTheme);
+        
+        // Update the button icon and aria-label
+        if (this.currentTheme === 'dark') {
+          this.button.innerHTML = '☀️';
+          this.button.setAttribute('aria-label', 'Switch to light theme');
+        } else {
+          this.button.innerHTML = '🌙';
+          this.button.setAttribute('aria-label', 'Switch to dark theme');
+        }
+      },
+
+      toggleTheme: function() {
+        this.currentTheme = this.currentTheme === 'dark' ? 'light' : 'dark';
+        localStorage.setItem('theme', this.currentTheme);
+        this.applyTheme();
+      }
+    };
+
+    themeSwitcher.init();
+  }
+  
+  initializeThemeSwitcher();
 });
