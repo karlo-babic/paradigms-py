@@ -18,9 +18,9 @@ nav_order: 3
 - [2. Variables](#variables)
 - [3. Functions](#functions)
 - [4. Lists](#lists)
-- [5. Functions over Lists](#functions-over-Lists)
+- [5. Functions over Lists](#functions-over-lists)
 - [6. Complexity](#complexity)
-- [7. Lazy Evaluation](#lazy-Evaluation)
+- [7. Lazy Evaluation](#lazy-evaluation)
 
 ## 1. Calculator
 One of the simplest and most immediate things a programming environment can do is perform calculations. This is a great way to verify your setup and get a feel for the language's syntax.
