@@ -12,6 +12,16 @@ nav_order: 3
 - In this chapter, you will get introduced to the most important concepts in programming.
     - Later chapters will give a deeper understanding of these concepts (and add other concepts).
 
+## Table of contents
+
+- [1. Calculator](#1.-Calculator)
+- [2. Variables](#2.-Variables)
+- [3. Functions](#3.-Functions)
+- [4. Lists](#4.-Lists)
+- [5. Functions over Lists](#5.-Functions-over-Lists)
+- [6. Complexity](#6.-Complexity)
+- [7. Lazy Evaluation](#7.-Lazy-Evaluation)
+
 ## 1. Calculator
 One of the simplest and most immediate things a programming environment can do is perform calculations. This is a great way to verify your setup and get a feel for the language's syntax.
 
