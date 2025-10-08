@@ -434,14 +434,14 @@ def fast_pascal(n):
 Exponential time algorithms are generally considered impractical for anything but small inputs.
 
 #### Exercise 1: See the Difference
-- Use Python's built-in `time` module to measure and compare the execution time of `slow_pascal(n)` and `fast_pascal(n)` for `n=20`. Then try `n=30`. What do you observe?
+- Use Python's built-in `time` module to measure and compare the execution time of `slow_pascal(n)` and `fast_pascal(n)` for `n=20`, `n=21`, `n=22`. What do you observe?
 
 ```python
 import time
 
 # Example usage of the time module
 start_time = time.time()
-result = fast_pascal(30) # or slow_pascal(30)
+result = fast_pascal(20) # or slow_pascal(30)
 end_time = time.time()
 
 print(f"Calculation took {end_time - start_time:.4f} seconds.")
