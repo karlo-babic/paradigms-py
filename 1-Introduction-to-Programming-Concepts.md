@@ -463,7 +463,7 @@ import time
 
 # Example usage of the time module
 start_time = time.time()
-result = fast_pascal(20) # or slow_pascal(30)
+result = fast_pascal(20) # or slow_pascal(20)
 end_time = time.time()
 
 print(f"Calculation took {end_time - start_time:.4f} seconds.")
