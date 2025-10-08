@@ -360,20 +360,6 @@ print(pascal(20))
     - **Recursive Step:** The sum of a non-empty list is its `head` plus the sum of its `tail`.
 - Use a `match` statement (or slicing) to deconstruct the list.
 
-<details>
-<summary>Solution Outline</summary>
-
-```python
-def sum_list(numbers):
-    match numbers:
-        case []:
-            return 0
-        case [head, *tail]:
-            return head + sum_list(tail)
-```
-
-</details>
-
 ## 6. Complexity
 
 If you try running `pascal(30)`, you might notice it takes a surprisingly long time to complete. This reveals a serious performance issue with our current recursive implementation. The field of computer science that studies the performance of algorithms is called **complexity analysis**.
