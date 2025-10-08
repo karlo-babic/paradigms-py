@@ -21,6 +21,7 @@ nav_order: 3
 - [5. Functions over Lists](#functions-over-lists)
 - [6. Complexity](#complexity)
 - [7. Lazy Evaluation](#lazy-evaluation)
+- [8. Higher-Order Programming](#higher-order-programming)
 
 ---
 
@@ -714,11 +715,11 @@ print(times_10(4)) # Output: 40 (it remembers n=10)
 ```
 Here, `times_5` is a closure. It holds onto the `n=5` from its creation, and `times_10` holds onto `n=10`. This is a powerful way to create specialized functions from a general template.
 
+We have only scratched the surface. These fundamental ideas (passing and returning functions) are the building blocks for many advanced programming patterns. In a later chapter on Declarative Programming, we will build on this foundation to explore Python's powerful built-in tools like `map` and `filter`, and advanced concepts like decorators.
+
 #### Exercise: Greeter Factory
 - Write a function factory `create_greeter(greeting)` that returns a new function.
 - The function it returns should take one argument, `name`, and return a string like `f"{greeting}, {name}!"`.
 - Use it to create a `say_hello` function and a `say_goodbye` function and test them.
-
-We have only scratched the surface. These fundamental ideas (passing and returning functions) are the building blocks for many advanced programming patterns. In a later chapter on Declarative Programming, we will build on this foundation to explore Python's powerful built-in tools like `map` and `filter`, and advanced concepts like decorators.
 
 ## To be continued...
