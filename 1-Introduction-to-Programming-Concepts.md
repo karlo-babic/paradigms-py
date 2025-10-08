@@ -22,6 +22,8 @@ nav_order: 3
 - [6. Complexity](#complexity)
 - [7. Lazy Evaluation](#lazy-evaluation)
 
+---
+
 ## 1. Calculator
 One of the simplest and most immediate things a programming environment can do is perform calculations. This is a great way to verify your setup and get a feel for the language's syntax.
 
@@ -38,6 +40,8 @@ One of the simplest and most immediate things a programming environment can do i
     - The Python interpreter reads your line of code, evaluates the expression, and prints the result.
     - This immediate feedback loop is a powerful tool for learning and experimenting.
     - In a script file (e.g., `myscript.py`), you would use the `print()` function to display output: `print(9999 * 9999)`.
+
+---
 
 ## 2. Variables
 Variables are names used to store and refer to values. Using variables allows us to break down complex calculations into simpler steps and reuse results.
@@ -79,6 +83,8 @@ In Python (and most mainstream languages), variables are **mutable**. A variable
 Now, consider the problem of calculating 100 factorial (written as 100!), which is the product of all positive integers up to 100 (`1 * 2 * 3 * ... * 100`).
 
 With only the concepts we've introduced so far (calculation and variables), could you write a program for this without manually typing out all 100 numbers? This need for repetition and abstraction leads us directly to our next, and most powerful, concept: **functions**.
+
+---
 
 ## 3. Functions
 
@@ -194,6 +200,8 @@ The formula for permutations, which calculates the number of ways to order `r` i
 
 - Using **functional abstraction**, write a Python function `perm(n, r)` that uses your existing `fact` function to calculate permutations.
 
+---
+
 ## 4. Lists
 
 A list is an ordered sequence of elements. In Python, lists are a versatile, built-in data type that can hold elements of any type.
@@ -288,6 +296,8 @@ For a list with two or more elements, you can deconstruct it into three parts: t
 
 </details>
 
+---
+
 ## 5. Functions over Lists
 
 Now that we have functions and a way to think about lists recursively (as a head and a tail), we can write functions that process lists. The structure of these functions will often mirror the recursive structure of the list itself.
@@ -368,6 +378,8 @@ print(pascal(20))
     - **Base Case:** The sum of an empty list is 0.
     - **Recursive Step:** The sum of a non-empty list is its `head` plus the sum of its `tail`.
 - Use a `match` statement (or slicing) to deconstruct the list.
+
+---
 
 ## 6. Complexity
 
@@ -485,6 +497,8 @@ def fib_pythonic(n):
 # This version is also instantaneous and requires no manual cache management.
 print(fib_pythonic(100))
 ```
+
+---
 
 ## 7. Lazy Evaluation
 
