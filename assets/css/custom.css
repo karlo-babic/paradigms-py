@@ -2,11 +2,14 @@
  * Custom styles for code blocks
  */
 
-.highlight pre, pre {
-  padding-top: 0.5em;    /* Optional: reduce top padding */
-  padding-bottom: 0.5em; /* Optional: reduce bottom padding */
+div.highlighter-rouge pre.highlight, 
+.highlight pre, 
+pre {
+  padding-top: 0.5em !important;    /* Reduce top padding */
+  padding-bottom: 0.5em !important; /* Reduce bottom padding */
 }
 
+div.highlighter-rouge pre.highlight code,
 pre code {
-  line-height: 1.3; /* Default is often ~1.5. Adjust this value as you see fit. */
+  line-height: 1.3 !important;
 }
