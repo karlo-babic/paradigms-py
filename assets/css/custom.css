@@ -1,0 +1,12 @@
+/*
+ * Custom styles for code blocks
+ */
+
+.highlight pre, pre {
+  padding-top: 0.5em;    /* Optional: reduce top padding */
+  padding-bottom: 0.5em; /* Optional: reduce bottom padding */
+}
+
+pre code {
+  line-height: 1.3; /* Default is often ~1.5. Adjust this value as you see fit. */
+}
