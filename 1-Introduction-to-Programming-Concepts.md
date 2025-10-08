@@ -632,6 +632,8 @@ The `yield from <expression>` statement allows one generator to delegate part of
 
 </details>
 
+---
+
 ## 8. Higher-Order Programming
 
 So far, we have treated functions as recipes for computation. Higher-order programming introduces a powerful new perspective: it treats **functions themselves as values**, just like numbers, strings, or lists.
