@@ -131,6 +131,12 @@ The factorial of a non-negative integer `n`, denoted `n!`, is the product of all
     ```
 - Result: `93326215443944152681699238856266700490715968264381621468592963895217599993229915608941463976156518286253697920827223758251185210916864000000000000000000000000`
 
+#### In Python's World: Recursion Depth Limits
+
+While recursion is a powerful conceptual tool, Python (like many practical languages) has a **recursion depth limit** (usually around 1000 calls) to prevent a type of error called a "stack overflow." If you tried to call `fact(3000)`, it would fail with an error.
+
+For problems that require very deep recursion, a Python programmer would typically rewrite the function using a simple loop (an iterative approach). This is a common trade-off: conceptual elegance (recursion) vs. practical constraints (memory).
+
 #### Checkpoint
 <details>
 <summary>In the recursive `fact(n)` function, what is the base case and what is the recursive step?</summary>
@@ -150,6 +156,8 @@ The Fibonacci sequence is another famous mathematical sequence defined recursive
 You will need two base cases in your `if/elif/else` structure.
 
 </details>
+
+**Food for thought:** Try running `fib(40)`. You'll notice it's surprisingly slow. This is because, like our `slow_pascal` example later, it recalculates the same values over and over. We will fix this performance problem in the "Complexity" section.
 
 ### Combinations
 
@@ -349,9 +357,10 @@ print(pascal(20))
 # Result: [1, 19, 171, 969, 3876, 11628, 27132, 50388, 75582, 92378, 92378, 75582, 50388, 27132, 11628, 3876, 969, 171, 19, 1]
 ```
 
-- **Info:**
-    - The `pascal` function's structure is purely recursive. It defines the solution for `n` in terms of the solution for `n-1`.
-    - The `zip` function is a powerful Python tool that pairs up elements from multiple iterables. It stops when the shortest iterable is exhausted.
+> **Python Toolbox: `zip` and List Comprehensions**
+>
+> -   `zip(list1, list2)` is a built-in function that takes two (or more) lists and "zips" them into a sequence of pairs (tuples). For example, `zip([1, 2], [3, 4])` produces `(1, 3)` and then `(2, 4)`.
+> -   `[... for ... in ...]` is a **list comprehension**. It's a concise and "Pythonic" way to create a new list. The expression `[x + y for x, y in zip(list1, list2)]` reads like English: "Create a new list containing `x + y` for each pair `x, y` you get from zipping the two lists."
 
 #### Exercise: Recursive List Sum
 - Write a recursive function `sum_list(numbers)` that takes a list of numbers and returns their sum.
@@ -448,16 +457,34 @@ print(f"Calculation took {end_time - start_time:.4f} seconds.")
 ```
 
 #### Exercise 2: Memoizing Fibonacci
-- The recursive `fib(n)` function you wrote in the previous section also suffers from exponential time complexity.
+The recursive `fib(n)` function you wrote in a previous section suffers from exponential time complexity. You can see this if you try to run `fib(40)`.
+
 - Create a more efficient version called `fast_fib(n)`.
 - A common technique for this is **memoization**: using a dictionary (or "cache") to store results that have already been computed.
 
 <details>
 <summary>Hint</summary>
 
-Create a dictionary `memo = {}` outside the function. Inside the function, before you compute `fib(n)`, check if `n` is already a key in `memo`. If it is, return the stored value immediately. If not, compute the result, store it in `memo`, and then return it.
+Create a dictionary `memo = {}` that is accessible to your function. Inside the function, before you compute `fib(n)`, first check if `n` is already a key in `memo`. If it is, return the stored value immediately. If not, compute the result, store it in `memo` *before* you return it, and then return it.
 
 </details>
+
+**The Pythonic Way: `functools.lru_cache`**
+
+This problem is so common that Python has a built-in tool for it called a **decorator**. The `@lru_cache` decorator automatically adds memoization to any function you place it on top of. This is the preferred way to solve this in modern Python.
+
+```python
+from functools import lru_cache
+
+@lru_cache(maxsize=None) # The decorator that does all the work.
+def fib_pythonic(n):
+    if n <= 1:
+        return n
+    return fib_pythonic(n - 1) + fib_pythonic(n - 2)
+
+# This version is also instantaneous and requires no manual cache management.
+print(fib_pythonic(100))
+```
 
 ## 7. Lazy Evaluation
 
