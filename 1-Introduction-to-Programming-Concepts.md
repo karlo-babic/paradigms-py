@@ -631,4 +631,94 @@ The `yield from <expression>` statement allows one generator to delegate part of
 
 </details>
 
+## 8. Higher-Order Programming
+
+So far, we have treated functions as recipes for computation. Higher-order programming introduces a powerful new perspective: it treats **functions themselves as values**, just like numbers, strings, or lists.
+
+A language supports higher-order programming if its functions are **first-class citizens**. This means you can:
+1.  Assign a function to a variable.
+2.  Pass a function as an argument to another function.
+3.  Return a function from another function.
+
+This capability allows us to write more abstract and reusable code. Let's look at the two most important techniques this enables.
+
+### 1. Passing Functions as Arguments (Genericity)
+
+The most common use of higher-order programming is to write generic functions that can be customized by passing in other functions as arguments.
+
+Imagine we want to apply an operation to every number in a list. Instead of writing a separate function for squaring, another for cubing, and another for adding one, we can write a single, generic function.
+
+```python
+def apply_to_list(numbers, operation_func):
+    """Applies a function to every number in a list."""
+    result = []
+    for number in numbers:
+        # Call the function that was passed in
+        result.append(operation_func(number))
+    return result
+
+# --- Define some simple operations ---
+def square(n):
+    return n * n
+
+def add_one(n):
+    return n + 1
+
+# --- Use our generic function ---
+my_numbers = [1, 2, 3, 4]
+
+squared = apply_to_list(my_numbers, square)
+print(f"Squared: {squared}") # Output: Squared: [1, 4, 9, 16]
+
+incremented = apply_to_list(my_numbers, add_one)
+print(f"Incremented: {incremented}") # Output: Incremented: [2, 3, 4, 5]
+```
+By passing in different functions (`square`, `add_one`), we completely changed the behavior of `apply_to_list` without modifying its code.
+
+> **Python Toolbox: `lambda` for Anonymous Functions**
+>
+> Sometimes you need a simple function for just one use and don't want to give it a full `def` name. Python's `lambda` keyword lets you create small, **anonymous functions** on the fly.
+>
+> The syntax is `lambda arguments: expression`.
+>
+> ```python
+> # Using our generic function with a lambda
+> my_numbers = [1, 2, 3, 4]
+> cubed = apply_to_list(my_numbers, lambda n: n ** 3)
+> print(f"Cubed: {cubed}") # Output: Cubed: [1, 8, 27, 64]
+> ```
+
+### 2. Returning Functions from Functions (Instantiation)
+
+Just as you can pass a function in, you can also return a function as a result. This allows you to create "function factories" - functions that generate and configure other functions.
+
+When a function is created inside another function, it forms a **closure**. A closure is a function that "remembers" the variables from the environment where it was created, even after the outer function has finished.
+
+```python
+def make_multiplier(n):
+    """A factory that makes functions that multiply by n."""
+    def multiplier(x):
+        # This inner function "remembers" the value of n
+        return x * n
+    return multiplier # We return the function object itself
+
+# Create a function that multiplies by 5
+times_5 = make_multiplier(5)
+
+# Create another function that multiplies by 10
+times_10 = make_multiplier(10)
+
+# The generated functions work as expected
+print(times_5(4))  # Output: 20 (it remembers n=5)
+print(times_10(4)) # Output: 40 (it remembers n=10)
+```
+Here, `times_5` is a closure. It holds onto the `n=5` from its creation, and `times_10` holds onto `n=10`. This is a powerful way to create specialized functions from a general template.
+
+#### Exercise: Greeter Factory
+- Write a function factory `create_greeter(greeting)` that returns a new function.
+- The function it returns should take one argument, `name`, and return a string like `f"{greeting}, {name}!"`.
+- Use it to create a `say_hello` function and a `say_goodbye` function and test them.
+
+We have only scratched the surface. These fundamental ideas (passing and returning functions) are the building blocks for many advanced programming patterns. In a later chapter on Declarative Programming, we will build on this foundation to explore Python's powerful built-in tools like `map` and `filter`, and advanced concepts like decorators.
+
 ## To be continued...
