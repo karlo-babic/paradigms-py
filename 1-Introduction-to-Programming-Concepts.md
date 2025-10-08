@@ -362,11 +362,13 @@ print(pascal(20))
 
 ## 6. Complexity
 
-If you try running `pascal(30)`, you might notice it takes a surprisingly long time to complete. This reveals a serious performance issue with our current recursive implementation. The field of computer science that studies the performance of algorithms is called **complexity analysis**.
+The implementation of `pascal` we wrote in the previous section is actually quite efficient. We were careful to compute the recursive step `pascal(n - 1)` only once and store its result in the `previous_row` variable.
+
+To understand a critical concept in performance, let's explore what happens if we aren't so careful. Consider a slightly different, more direct implementation that reveals a common and serious pitfall with recursion. The field of computer science that studies the performance of algorithms is called **complexity analysis**.
 
 ### The Problem: Redundant Computations
 
-Let's look at a slightly rewritten, but functionally identical, version of our `pascal` function to make the problem obvious.
+Let's write a naive version of the function, `slow_pascal`, where we call the function directly inside our `add_lists` call, instead of storing the intermediate result.
 
 ```python
 # A deliberately inefficient version to demonstrate the complexity issue
@@ -380,6 +382,8 @@ def slow_pascal(n):
             shift_right(slow_pascal(n - 1))
         )
 ```
+
+If you try running `slow_pascal(30)`, you will notice it takes a surprisingly long time to complete.
 
 - **Why is this slow?**
     <details>
