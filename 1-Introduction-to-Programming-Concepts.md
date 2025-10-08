@@ -509,12 +509,7 @@ A generator is a special kind of function that, instead of `return`ing a single 
     </details>
 
 #### Exercise 1
-- Let's revisit the `sum_list` function from a previous exercise.
-    ```python
-    def sum_list(numbers):
-        # ... (your recursive implementation)
-    ```
-- What happens if you try to call `sum_list(lazy_ints_from(0))`? Is this a good idea? Why or why not?
+- What happens if you try to call `sum(lazy_ints_from(0))`? Is this a good idea? Why or why not?
     <details>
     <summary>Hint</summary>
     
