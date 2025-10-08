@@ -568,4 +568,26 @@ print(ten_rows)
     </details>
     </details>
 
+#### Exercise 3: Recursive Generator
+Generators can also be written recursively. A recursive generator is a function that typically does two things:
+1.  It `yield`s one or more values based on its current state.
+2.  It uses `yield from` to delegate to a recursive call with a new state.
+
+A key technique used in this style of recursion is the **accumulator**. An accumulator is an argument to a function that carries the state of the computation forward into the next recursive call. In this exercise, the `current_row` parameter will act as our accumulator. We will explore accumulator-based patterns in more detail in a later chapter.
+
+- Write a recursive generator function `pascal_rows_generator_recursive(current_row)`. You can give the parameter a default value of `[1]` to make the initial call easier.
+- The function should:
+    - Take the current row as an argument (the accumulator).
+    - Inside the function, you should:
+        1.  `yield` the `current_row`.
+        2.  Calculate the `next_row`.
+        3.  `yield from` a recursive call to `pascal_rows_generator_recursive` with the `next_row`.
+
+<details>
+<summary>Hint</summary>
+
+The `yield from <expression>` statement allows one generator to delegate part of its operations to another generator. In this case, you are delegating to a recursive call of the same generator. The structure will be very concise.
+
+</details>
+
 ## To be continued...
