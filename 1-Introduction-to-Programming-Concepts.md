@@ -22,6 +22,10 @@ nav_order: 3
 - [6. Complexity](#complexity)
 - [7. Lazy Evaluation](#lazy-evaluation)
 - [8. Higher-Order Programming](#higher-order-programming)
+- [9. State](#state)
+- [10. Objects and Classes](#objects-and-classes)
+- [11. Concurrency](#concurrency)
+- [12. Concurrency with State](#concurrency-with-state)
 
 ---
 
@@ -723,5 +727,375 @@ We have only scratched the surface. These fundamental ideas (passing and returni
 - Write a function factory `create_greeter(greeting)` that returns a new function.
 - The function it returns should take one argument, `name`, and return a string like `f"{greeting}, {name}!"`.
 - Use it to create a `say_hello` function and a `say_goodbye` function and test them.
+
+---
+
+## 9. State
+
+All the functions we have written so far share a common property: if you call them with the same inputs, they will *always* produce the same output. A function like `add(2, 3)` will always return `5`. This style of programming is called **stateless** or **declarative**. It's predictable and easy to reason about.
+
+However, sometimes we need components that can change over time. We need them to remember things from past events. This "memory" is called **explicit state**. A component with state can produce different results for the same call, depending on its history.
+
+### Conceptual Model: The Memory Cell (Oz)
+
+To support explicit state, the declarative model needs to be extended with a new concept: a container for a value that can be changed. In Oz, this is called a **cell**.
+
+A cell has three basic operations:
+1.  `{NewCell 0}`: Create a new cell with an initial value of `0`.
+2.  `@C`: Read the current value of cell `C`.
+3.  `C := ...`: Assign a new value to cell `C`.
+
+Using a cell, we can create a function that "remembers" how many times it has been called.
+
+- An Oz function with memory:
+    ```erlang
+    declare
+    C = {NewCell 0}
+    fun {Add A B}
+       C := @C + 1
+       A + B
+    end
+    ```
+- **Info:**
+    - The cell `C` is created once, outside the function. It acts as a long-term memory.
+    - Each time `Add` is called, it reads the value from `C`, adds one to it, and writes the new value back into the cell. The cell's state persists between calls.
+
+### Python Implementation: Mutable State
+
+In Python, we don't need a special "cell" concept because variables can already point to mutable objects (like lists or dictionaries), and variables in a wider scope can be modified. Explicit state is about managing data that lives longer than a single function call.
+
+The simplest way to implement the counter is with a global variable.
+
+```python
+# A global variable to hold the state
+call_count = 0
+
+def add_with_counter(a, b):
+    # 'global' keyword is needed to modify the variable
+    global call_count
+    call_count = call_count + 1
+    return a + b
+
+print(f"Result: {add_with_counter(2, 3)}, Count: {call_count}")
+print(f"Result: {add_with_counter(10, 20)}, Count: {call_count}")
+```
+- Result:
+    ```
+    Result: 5, Count: 1
+    Result: 30, Count: 2
+    ```
+- **Info:**
+    - The `call_count` variable exists outside the function and holds its value across multiple calls.
+    - We must use the `global` keyword to tell Python we intend to modify the global variable, not create a new local one.
+
+#### A Better Way: Encapsulation
+Using global variables is simple, but it can be risky in larger programs. Any part of the program can modify `call_count`, which can lead to bugs that are hard to track down.
+
+A much better approach is to **encapsulate** the state so it is not exposed globally. We can bundle the state and the functions that operate on it together into a single unit. This idea is the foundation of object-oriented programming and leads directly to our next section: **objects and classes**.
+
+#### Exercise: A Simple Accumulator
+- An accumulator is a stateful component that adds every input it receives to a running total.
+- Create a function `accumulate(n)` that uses a global variable `total` (initialized to 0).
+- Each call to `accumulate(n)` should add `n` to `total` and return the new total.
+- Example calls:
+    ```python
+    print(accumulate(5))   # Should print 5
+    print(accumulate(10))  # Should print 15
+    print(accumulate(3))   # Should print 18
+    ```
+
+---
+
+## 10. Objects and Classes
+
+In the last section, we saw that global variables can create state, but they are fragile. Any part of a program can change them. **Object-Oriented Programming (OOP)** offers a powerful solution to this problem: **encapsulation**.
+
+The idea is to create "objects," which are self-contained units that bundle together:
+1.  **State:** The data or "memory" the object holds.
+2.  **Behavior:** The functions (called **methods**) that can operate on that state.
+
+By encapsulating state inside an object, we can protect it from accidental modification and create clear, reusable components.
+
+### Conceptual Model: A Function Factory (Oz)
+
+In Oz, you can create an object by defining a function that acts as a "factory." This factory function creates a local, hidden memory cell and then returns a package of other functions (a `record`) that are the only ones allowed to access that cell.
+
+- The `NewCounter` factory in Oz:
+    ```erlang
+    declare
+    fun {NewCounter}
+        C = {NewCell 0} // Create a hidden, local state
+        fun {Bump} ... end // Define inner functions that
+        fun {Read} ... end //   can access that state
+    in
+        counter(bump:Bump read:Read) // Return the functions
+    end
+    ```
+- **Info:**
+    - Each time `{NewCounter}` is called, it creates a *new*, independent cell `C`.
+    - The `Bump` and `Read` functions it creates inside are **closures** - they "remember" the specific `C` they were created with.
+    - The factory returns a record containing these functions. The cell `C` is completely hidden from the outside world.
+    - This allows for multiple, independent counter objects:
+        ```erlang
+        Ctr1 = {NewCounter}
+        Ctr2 = {NewCounter}
+        {Ctr1.bump} // Ctr1's cell is now 1
+        {Ctr2.read} // Ctr2's cell is still 0
+        ```
+
+### Exercise: Recreating the Factory in Python
+Before we learn Python's dedicated syntax for objects, let's replicate the Oz factory pattern directly. This will help you understand the core concept of a closure.
+
+- Write a Python function `make_counter()`.
+- Inside `make_counter`, create a local variable `count` initialized to `0`.
+- Define two inner functions, `bump()` and `read()`.
+    - `bump()` should increment the `count` variable and return its new value.
+    - `read()` should just return the current value of `count`.
+- `make_counter` should return the two inner functions. A good way to do this is to return them in a dictionary, like `{"bump": bump, "read": read}`.
+- Test your factory by creating two separate counters and verifying that their states are independent.
+
+<details>
+<summary>Hint</summary>
+
+When an inner function needs to *modify* a variable from its containing function's scope (not a global variable), you need to use the `nonlocal` keyword. For example: `nonlocal count`. You won't need it for the `read` function.
+
+</details>
+
+### The Pythonic Way: The `class` Keyword
+
+While the function factory pattern is powerful, Python provides a more direct and conventional syntax for creating object blueprints: the `class`. A **class** is a formal blueprint for creating objects, and it's the standard for object-oriented programming in Python.
+
+Let's rewrite our counter using this much cleaner approach.
+
+```python
+class Counter:
+    """A blueprint for creating counter objects."""
+
+    # The __init__ method is the constructor.
+    # It runs when a new object is created.
+    def __init__(self):
+        # The state is stored on the instance ('self').
+        # The underscore prefix `_count` is a convention
+        # to indicate it's for internal use.
+        self._count = 0
+
+    # A method to change the state
+    def bump(self):
+        self._count += 1
+        return self._count
+
+    # A method to read the state
+    def read(self):
+        return self._count
+
+# --- Creating and using instances of the class ---
+# Instantiation: calling the class creates an object instance
+ctr1 = Counter()
+ctr2 = Counter()
+
+# We call the methods using dot notation
+print(ctr1.bump())  # Output: 1
+print(ctr1.bump())  # Output: 2
+print(ctr2.read())  # Output: 0 (ctr2 has its own _count)
+```
+- **Info:**
+    - `class Counter:` defines the blueprint.
+    - `ctr1 = Counter()` creates an **instance** of that class. The `__init__` method is automatically called to set up its initial state.
+    - `self` is a special parameter that always refers to the instance itself. `ctr1.bump()` is automatically translated by Python into `Counter.bump(ctr1)`. This is how the method knows which object's `_count` to modify.
+    - As you can see, the `class` syntax elegantly solves the problem you tackled in the exercise. It bundles state (`self._count`) and behavior (`bump`, `read`) into a clean, reusable unit.
+
+---
+
+## 11. Concurrency
+
+So far, even our stateful objects have been sequential. When we call a method, our program waits for it to complete before moving on. But what if an object needs to perform a long-running task, like downloading a file or doing a complex calculation, without freezing the entire application?
+
+Concurrency is the tool that lets us solve this. It allows a program to be composed of several independent activities that run at their own pace, seemingly at the same time.
+
+### Conceptual Model: The `thread` block (Oz)
+
+In Oz, creating a concurrent activity is straightforward. You simply wrap the code you want to run independently in a `thread ... end` block. This creates a new **thread** of execution.
+
+Consider a program that needs to do a slow calculation (like `Pascal(25)`) and a fast one (`99*99`). In a sequential program, the fast calculation would have to wait. With concurrency, it doesn't.
+
+- A concurrent block in Oz:
+    ```erlang
+    thread P in
+        P = {Pascal 25}  // This will take a while
+        {Browse P}
+    end
+    {Browse 99*99} // This happens immediately
+    ```
+- **Info:**
+    - A new thread is created to calculate `{Pascal 25}`.
+    - The main thread does not wait. It immediately continues to the next line and displays the result of `99*99`.
+    - The result of the Pascal calculation will appear in the browser whenever it finishes, without blocking the rest of the program.
+
+### Python Implementation: The `threading` Module
+
+Python provides concurrency through its built-in `threading` module, which is built around objects. The `threading.Thread` class is a blueprint for a concurrent activity. To run a task in the background, we create an instance of this class.
+
+Let's replicate the Oz example. We'll use `time.sleep()` to simulate a task that takes a long time.
+
+```python
+import threading
+import time
+
+def slow_task():
+    """A simple function that simulates a long-running job."""
+    print("Starting slow task...")
+    time.sleep(2)  # Pauses this thread for 2 seconds
+    print("Slow task finished.")
+
+# 1. Create a Thread object.
+#    'target' is the function the thread will run.
+my_thread = threading.Thread(target=slow_task)
+
+# 2. Start the thread.
+#    This begins execution of slow_task in the background.
+my_thread.start()
+
+# 3. The main thread continues immediately.
+#    It does not wait for slow_task to finish.
+print(f"The quick calculation is: {99 * 99}")
+
+# 4. Wait for the thread to complete using join().
+#    If we need to wait for the background task to be done before
+#    the program can exit, we use .join().
+my_thread.join()
+print("Program has finished.")
+```
+
+- **Info:**
+    - `threading.Thread(target=...)` creates a new thread, but doesn't run it yet.
+    - The `.start()` method is what kicks off the execution in the background.
+    - The `.join()` method makes the main thread pause and wait until the other thread has completed. Without it, the main program might finish and exit before `slow_task` gets a chance to print its final message.
+
+#### The Danger Ahead: Shared Data
+This example works nicely because the two threads are completely independent—they don't share any data. The main challenge of concurrency, and a topic for a much later chapter, is what happens when multiple threads try to read and write to the **same variable**. This can lead to unpredictable and incorrect results, a problem known as a **race condition**. For now, we are just introducing the concept of running tasks independently.
+
+#### Exercise: Concurrent Countdown
+- Write a program that starts two threads.
+- The first thread should be a function `count_down()` that counts down from 5 to 1, sleeping for 1 second between each number, and then prints "Liftoff!".
+- The second thread should be a function `count_up()` that counts up from 1 to 5, sleeping for 0.5 seconds between each number.
+- Start both threads and observe how their outputs are interleaved. Don't forget to `.join()` both threads at the end of your main program.
+
+---
+
+## 12. Concurrency with State
+
+We have now introduced two powerful concepts:
+- **State:** Creating components with memory that can change over time.
+- **Concurrency:** Running multiple activities at once.
+
+Individually, they are manageable. But when you combine them - when you have multiple threads trying to change the **same shared state** - you enter one of the most complex areas of programming.
+
+### The Problem: Nondeterminism and Race Conditions
+
+Let's consider a simple program with a shared counter object and two threads that both try to increment it.
+
+The operation `_count = _count + 1` feels like a single, atomic step, but it is not. The Python interpreter breaks it down into smaller machine-level instructions: read the current value, perform the addition, and write the new value back. A thread can be paused by the operating system *between* any of those tiny steps.
+
+This creates a **race condition**: the final outcome depends on the unpredictable "race" of which thread gets to execute its instructions in which order.
+
+#### Simulating the Race Condition
+Because of an implementation detail in the standard Python interpreter (called the Global Interpreter Lock, or GIL), simple operations like this one are often, *by accident*, not interrupted. This can hide the bug and make the code seem safe when it isn't.
+
+To reliably see the race condition in action, we can add a small, manual delay between the read and the write. This dramatically increases the chance that the OS will switch threads at the worst possible moment.
+
+```python
+import threading
+import time
+
+class UnsafeCounter:
+    def __init__(self):
+        self._count = 0
+
+    def bump(self):
+        current_value = self._count
+        time.sleep(0.00000001) # Introduce a tiny delay
+        self._count = current_value + 1
+
+# A shared object instance
+counter = UnsafeCounter()
+
+def worker(counter_instance):
+    """Each thread will try to bump the passed counter 1000 times."""
+    for _ in range(1000):
+        counter_instance.bump()
+
+# Create two threads, passing the shared counter as an argument
+thread1 = threading.Thread(target=worker, args=(counter,))
+thread2 = threading.Thread(target=worker, args=(counter,))
+
+thread1.start()
+thread2.start()
+
+thread1.join()
+thread2.join()
+
+print(f"Final unsafe count: {counter._count}")
+```
+
+**What do you expect the final count to be?**
+
+The correct answer should be `2000`. But if you run this code, you will get a different, smaller number almost every time (e.g., `1138`, `1451`, etc.). The result is unpredictable, or **nondeterministic**. The "lost updates" from the race condition are now clearly visible.
+
+### The Solution: Atomic Operations and Locks
+To solve a race condition, we must ensure that the read-modify-write sequence is **atomic** that it cannot be interrupted by another thread. The most fundamental tool for achieving this is a **lock**.
+
+A lock ensures that only one thread can be executing a specific block of code at any given time.
+
+#### Python Implementation: `threading.Lock`
+
+We can create a `SafeCounter` class that uses a `threading.Lock` to protect its state during the `bump` operation.
+
+```python
+import threading
+import time
+
+class SafeCounter:
+    def __init__(self):
+        self._count = 0
+        self._lock = threading.Lock() # Each counter has its own lock
+
+    def bump(self):
+        # 'with self._lock:' acquires the lock before the block
+        # and guarantees it's released after.
+        with self._lock:
+            # This is a "critical section".
+            # Only one thread can be in here at a time.
+            current_value = self._count
+            time.sleep(0.00000001) # The delay is now harmless
+            self._count = current_value + 1
+
+# A shared instance of the SAFE counter
+safe_counter = SafeCounter()
+
+def safe_worker(counter_instance):
+    """Each thread will try to bump the passed counter 1000 times."""
+    for _ in range(1000):
+        counter_instance.bump()
+
+# Create threads targeting the worker, passing the SAFE counter
+thread1 = threading.Thread(target=safe_worker, args=(safe_counter,))
+thread2 = threading.Thread(target=safe_worker, args=(safe_counter,))
+
+thread1.start()
+thread2.start()
+
+thread1.join()
+thread2.join()
+
+print(f"Final safe count: {safe_counter._count}")
+```
+- **Result:** If you run this final version, the count will be `2000` every single time. The program is now **thread-safe** and deterministic.
+
+- **Info:**
+    - The `with self._lock:` statement creates a **critical section**. The lock guarantees that a thread will complete the entire block before another thread is allowed to enter it.
+
+This section has only scratched the surface. Programming with shared state and concurrency is a deep and challenging topic. The key takeaway for this introduction is that **when concurrency and state meet, you must use synchronization tools like locks to prevent chaos**.
+
+---
 
 ## To be continued...
