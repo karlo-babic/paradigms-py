@@ -224,3 +224,7 @@ They are conceptually identical. The accumulator pattern is the declarative way 
 <summary>Hint</summary>
 In each recursive step, you will take the `head` of the input tuple and prepend it to the `acc` tuple. The new accumulator will be `(head,) + acc`.
 </details>
+
+---
+
+## To be continued...

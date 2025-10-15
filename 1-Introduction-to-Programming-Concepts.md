@@ -973,7 +973,7 @@ print("Program has finished.")
     - The `.join()` method makes the main thread pause and wait until the other thread has completed. Without it, the main program might finish and exit before `slow_task` gets a chance to print its final message.
 
 #### The Danger Ahead: Shared Data
-This example works nicely because the two threads are completely independent—they don't share any data. The main challenge of concurrency, and a topic for a much later chapter, is what happens when multiple threads try to read and write to the **same variable**. This can lead to unpredictable and incorrect results, a problem known as a **race condition**. For now, we are just introducing the concept of running tasks independently.
+This example works nicely because the two threads are completely independent - they don't share any data. The main challenge of concurrency, and a topic for a much later chapter, is what happens when multiple threads try to read and write to the **same variable**. This can lead to unpredictable and incorrect results, a problem known as a **race condition**. For now, we are just introducing the concept of running tasks independently.
 
 #### Exercise: Concurrent Countdown
 - Write a program that starts two threads.
