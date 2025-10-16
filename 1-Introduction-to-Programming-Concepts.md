@@ -6,7 +6,7 @@ nav_order: 3
 
 # 1. Introduction to Programming Concepts
 
->"In reality, programming languages are how programmers express and communicate ideas — and the audience for those ideas is other programmers, not computers. The reason: the computer can take care of itself, but programmers are always working with other programmers, and poorly communicated ideas can cause expensive flops."  
+>"In reality, programming languages are how programmers express and communicate ideas - and the audience for those ideas is other programmers, not computers. The reason: the computer can take care of itself, but programmers are always working with other programmers, and poorly communicated ideas can cause expensive flops."  
 >\- Guido van Rossum, creator of Python
 
 - In this chapter, you will get introduced to the most important concepts in programming.
@@ -1124,7 +1124,7 @@ This is the world of imperative programming, where things change over time. Its 
 - **Explicit State:** Memory that persists between function calls.
 - **Objects and Classes:** Bundling state and behavior together (**encapsulation**).
 
-This model is powerful for representing real-world entities that have a history—a bank account, a user session, a game character. The challenge here is managing how and when the state changes.
+This model is powerful for representing real-world entities that have a history - a bank account, a user session, a game character. The challenge here is managing how and when the state changes.
 
 ### 3. The Concurrent World
 This is the world of time and interaction. Its concepts include:
