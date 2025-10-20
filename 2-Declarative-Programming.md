@@ -1158,4 +1158,4 @@ Let's recap the core concepts and techniques we covered on our journey from basi
 
 ### The Road Ahead
 
-You now have a solid foundation in declarative thinking. You know how to solve complex problems using a pure, functional style. As we move into the next chapter, **"Explicit State and Object-Oriented Programming,"** we will begin to relax the strict rule of immutability. We will explore why and when we might need to introduce state, and how the principles of object-oriented programming help us manage the new complexities that arise when our components are allowed to have a memory.
+You now have a solid foundation in declarative thinking. You know how to solve complex problems using a pure, functional style. As we move into the next chapter, **"State and Object-Oriented Programming,"** we will begin to relax the strict rule of immutability. We will explore why and when we might need to introduce state, and how the principles of object-oriented programming help us manage the new complexities that arise when our components are allowed to have a memory.
