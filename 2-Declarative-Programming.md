@@ -337,7 +337,7 @@ This is a profound shift in thinking. We've taken a fundamental piece of control
 
 ## 4. The Principle of Immutability
 
-In our journey through the declarative paradigm, we've focused on functions that are pure and predictable. This predictability relies on a critical assumption: that the **data objects** our functions operate on cannot be changed in unexpected ways. This leads to a key concept in Python's data model: **mutability**.
+In declarative programming, we've focused on functions that are pure and predictable. This predictability relies on the assumption: the **data objects** our functions operate on cannot be changed in unexpected ways. This leads to an important concept in Python's data model: **mutability**.
 
 ### Variables vs. Objects: A Quick Clarification
 
