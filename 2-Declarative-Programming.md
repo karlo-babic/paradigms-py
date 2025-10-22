@@ -337,15 +337,15 @@ This is a profound shift in thinking. We've taken a fundamental piece of control
 
 ## 4. The Principle of Immutability
 
-In declarative programming, we've focused on functions that are pure and predictable. This predictability relies on the assumption: the **data objects** our functions operate on cannot be changed in unexpected ways. This leads to an important concept in Python's data model: **mutability**.
+In declarative programming, we've focused on functions that are pure and predictable. This predictability relies on the assumption: the data objects our functions operate on cannot be changed in unexpected ways. This leads to an important concept in Python's data model: **mutability**.
 
 ### Variables vs. Objects: A Quick Clarification
 
 It's important to distinguish between a *variable* (a name) and an *object* (the data value).
 -   A **variable** is a label. In Python, you can always re-assign this label to point to a different object (`x = 10`, then `x = 20`).
--   An **object** is the actual data in memory. **Mutability** is a property of the object itself. Can this object be changed in-place?
+-   An **object** is the actual data in memory. Mutability is a property of the object itself. Can this object be changed in-place?
 
-Data types that cannot be changed in-place are called **immutable**. Data types that can be modified are **mutable**.
+Data types that cannot be changed in-place are called **immutable**. Data types that can be modified are mutable.
 
 | Immutable Types (Value cannot change in-place) | Mutable Types (Value can change in-place) |
 | ---------------------------------------------- | ----------------------------------------- |
@@ -438,7 +438,9 @@ The "buggy" function `add_item_buggy` can be fixed while still using a `list` by
 
 <details>
 <summary>Hint</summary>
+  
 The first line inside your function should be `if target_list is None: target_list = []`.
+
 </details>
 
 #### Exercise 2: Declarative Update
