@@ -337,18 +337,26 @@ This is a profound shift in thinking. We've taken a fundamental piece of control
 
 ## 4. The Principle of Immutability
 
-In our journey through the declarative paradigm, we've focused on functions that are pure and predictable. A function like `factorial(5)` is guaranteed to always return `120`. This predictability is the superpower of declarative programming, but it relies on a critical assumption: that the data our functions operate on **does not change**.
+In our journey through the declarative paradigm, we've focused on functions that are pure and predictable. This predictability relies on a critical assumption: that the **data objects** our functions operate on cannot be changed in unexpected ways. This leads to a key concept in Python's data model: **mutability**.
 
-Data that cannot be changed after it is created is called **immutable**. In contrast, data that can be modified in-place is called **mutable**.
+### Variables vs. Objects: A Quick Clarification
 
-| Mutable (can be changed)     | Immutable (cannot be changed) |
-| ---------------------------- | ----------------------------- |
-| Python `list`                | Python `tuple`                |
-| Python `dict`                | Python `str`                  |
-| Python `set`                 | Python `int`, `float`, `bool` |
-| Most custom `class` objects  | `frozenset`                   |
+It's important to distinguish between a *variable* (a name) and an *object* (the data value).
+-   A **variable** is a label. In Python, you can always re-assign this label to point to a different object (`x = 10`, then `x = 20`).
+-   An **object** is the actual data in memory. **Mutability** is a property of the object itself. Can this object be changed in-place?
 
-For declarative programming, immutability is not just a feature; it is a fundamental discipline. When we use immutable data, we can pass it to any function, anywhere in our program, with a guarantee that it will not be accidentally modified. This eliminates a huge category of bugs related to unexpected side effects.
+Data types that cannot be changed in-place are called **immutable**. Data types that can be modified are **mutable**.
+
+| Immutable Types (Value cannot change in-place) | Mutable Types (Value can change in-place) |
+| ---------------------------------------------- | ----------------------------------------- |
+| `int`, `float`, `bool`                         | `list`                                    |
+| `str`                                          | `dict`                                    |
+| `tuple`                                        | `set`                                     |
+| `frozenset`                                    | Most custom `class` objects               |
+
+When you perform an operation like `x = x + 1`, you are not changing the number `10`. You are creating a new number object, `11`, and re-assigning the label `x` to it. In contrast, `my_list.append(4)` modifies the original list object directly.
+
+For declarative programming, using immutable types is a fundamental discipline. It provides a guarantee that no function can secretly change the data it receives. This eliminates a huge category of bugs and makes our programs safe and predictable. Our core principle will be: **instead of changing data, we create new data.**
 
 ### A Cautionary Tale: The Danger of Hidden State
 
