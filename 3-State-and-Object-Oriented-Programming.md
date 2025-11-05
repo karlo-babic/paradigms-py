@@ -11,7 +11,7 @@ nav_order: 5
 
 In the last chapter, we explored the declarative programming paradigm, where components behave like mathematical functions: the same inputs always produce the same outputs. This makes declarative programs highly predictable and easy to reason about, but it limits their ability to model systems that change over time. A bank account, a user session, or a game character cannot be represented by a pure function alone.
 
-To build these dynamic systems, we must extend our programming model with **explicit state**—a form of memory that persists between operations. State gives a component a history, allowing its results to depend not only on its current inputs but also on all past interactions. This transforms a component from a simple calculator into a simulation.
+To build these dynamic systems, we must extend our programming model with **explicit state** - a form of memory that persists between operations. State gives a component a history, allowing its results to depend not only on its current inputs but also on all past interactions. This transforms a component from a simple calculator into a simulation.
 
 However, this new capability introduces significant complexity. When state is not managed in a disciplined way, it can make programs unpredictable and difficult to debug. **Object-Oriented Programming (OOP)** is a paradigm designed specifically to manage this complexity. Its core principle is **encapsulation**: the bundling of state (data) and the behavior (methods) that operates on that state into a single, coherent unit called an **object**.
 
