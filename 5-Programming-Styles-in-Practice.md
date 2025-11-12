@@ -1,3 +1,9 @@
+---
+layout: default
+title: "5. Programming Styles in Practice"
+nav_order: 7
+---
+
 # 5. Programming Styles in Practice
 
 In previous chapters, we explored high-level **paradigms** - fundamental ways of thinking about computation, such as the declarative and object-oriented models. Now, we will zoom in to examine **programming styles**. A style is a more concrete set of constraints and conventions for how to structure code *within* a paradigm. A paradigm is the philosophy; a style is the recipe.
