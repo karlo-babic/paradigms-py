@@ -135,13 +135,21 @@ for char, count in sorted_counts[:25]:
     print(char, '-', count)
 ```
 
-#### Exercise: Analyze the Baseline Code
+### Exercise: Analyze the Baseline Code
 Your task for this section is to familiarize yourself with the monolithic **Character Count** script above. There is nothing to implement yet.
 
 1.  Save the code as a Python file (e.g., `char_count_mono.py`).
 2.  Find a sample text file to use as input.
 3.  Run the script from your terminal and verify that it produces the expected output: `python char_count_mono.py path/to/your/file.txt`.
-4.  Read through the code and identify the distinct logical steps it performs (e.g., reading data, counting, sorting, printing). This will help you decompose the problem in the sections to come.
+4.  Read through the code and identify the six distinct logical steps it performs. The comments in the script already hint at these, but trace the data flow from the raw file to the final printed output. The six steps are:
+    1.  Read the raw text data from a file.
+    2.  Normalize the text to lowercase.
+    3.  Filter out non-alphabetic characters.
+    4.  Count the frequency of each character.
+    5.  Sort the frequencies in descending order.
+    6.  Print the top 25 results.
+
+Understanding this consistent decomposition is the key to all the following exercises.
 
 ---
 
@@ -256,23 +264,27 @@ for tf in word_freqs[0:25]:
     print(tf[0], '-', tf[1])
 ```
 
-#### Exercise: Refactor to the Cookbook Style
-Your task is to refactor the monolithic **Character Count** script from Section 1 into the Cookbook style. Use the Word Frequency implementation above as a guide.
+### Exercise: Refactor to the Cookbook Style
+Your task is to refactor the monolithic **Character Count** script into the Cookbook style. Use the Word Frequency implementation above as a guide. The goal is to decompose the logic into separate procedures that all operate on shared, global data.
 
 **Instructions:**
 1.  Start a new Python file.
-2.  At the top of the file, define global variables to hold the shared data (e.g., `text`, `counts`, `sorted_counts`).
-3.  Decompose the logic from the monolithic script into the following procedures:
-    *   `read_file(path_to_file)`: Reads the file content into the global `text` variable.
-    *   `filter_and_normalize()`: Processes the `text` variable, converting it to lowercase and preparing it for counting.
-    *   `count_frequencies()`: Populates the global `counts` dictionary.
-    *   `sort_counts()`: Sorts the results and stores them in the `sorted_counts` list.
-4.  The main part of your script should be a simple sequence of calls to these functions, followed by a loop to print the final results.
+2.  At the top of the file, define global variables to hold the data at each stage of the process: `raw_text`, `normalized_text`, `filtered_text`, `char_counts`, and `sorted_data`.
+3.  Decompose the logic from the monolithic script into six procedures, each performing one step of the problem:
+    *   `read_file(path_to_file)`: Reads the file and stores its content in the `raw_text` global variable.
+    *   `normalize()`: Reads from `raw_text` and stores the lowercase version in `normalized_text`.
+    *   `filter_chars()`: Reads from `normalized_text` and stores only the alphabetic characters in `filtered_text`.
+    *   `count_frequencies()`: Reads from `filtered_text` and populates the `char_counts` global dictionary.
+    *   `sort()`: Reads from `char_counts` and stores the sorted list of pairs in `sorted_data`.
+    *   `print_results()`: Reads from `sorted_data` and prints the top 25 results.
+4.  The main part of your script should be a simple, sequential series of calls to these procedures.
 
 <details>
 <summary>Hint</summary>
 
-Remember to use the `global` keyword inside each function that needs to *modify* a global variable. You don't need `global` to simply read a global variable's value.
+Remember to use the `global` keyword inside each function that needs to *modify* a global variable. For example, `normalize()` will need `global raw_text, normalized_text` (or just `global normalized_text` if you only read from `raw_text`).
+
+A common Pythonic way to implement `filter_chars(text)` is to use a list comprehension and the `str.join()` method: `return "".join([char for char in text if char.isalpha()])`. This is a concise and efficient way to build the new filtered string.
 
 </details>
 
@@ -375,20 +387,19 @@ for word, freq in sorted_freqs[:25]:
 #    print(word, '-', freq)
 ```
 
-#### Exercise: Refactor to the Pipeline Style
-Your task is to refactor the **Character Count** script from the **Cookbook style** into the Pipeline style. The goal is to eliminate all global variables and side effects.
+### Exercise: Refactor to the Pipeline Style
+Your task is to refactor the **Character Count** script from the **Cookbook style** into the Pipeline style. The goal is to eliminate all global variables and side effects, creating a chain of pure functions.
 
 **Instructions:**
 1.  Start with your solution from the "Cookbook Style" exercise.
-2.  Modify each of your procedures into a pure function:
-    *   Instead of modifying a global variable, each function must `return` a new value.
-    *   Each function should take the data it needs as an argument, rather than reading it from a global variable.
-3.  Your functions should be:
-    *   `read_file(path_to_file)`: Reads the file and returns its content as a string.
-    *   `normalize(text)`: Takes a string, converts it to lowercase, and returns the result.
-    *   `filter_chars(text)`: Takes a string and returns a new string containing only the alphabet characters.
-    *   `count_frequencies(text)`: Takes the filtered text and returns a dictionary of character counts.
-    *   `sort(counts)`: Takes the dictionary and returns a list of `(char, count)` pairs sorted by count.
+2.  Transform each of your procedures into a pure function that takes an input and returns an output.
+3.  Your six functions should have the following signatures:
+    *   `read_file(path_to_file) -> str`: Reads the file and returns its content.
+    *   `normalize(text: str) -> str`: Takes a string and returns a new lowercase string.
+    *   `filter_chars(text: str) -> str`: Takes a string and returns a new string containing only the alphabet characters.
+    *   `count_frequencies(text: str) -> dict`: Takes the filtered text and returns a dictionary of character counts.
+    *   `sort(counts: dict) -> list`: Takes the dictionary and returns a list of `(char, count)` pairs sorted by count.
+    *   `print_results(sorted_data: list) -> None`: Takes the sorted list and prints the top 25 results. This is the only function that should have a side effect (printing).
 4.  Rewrite the main part of your script to be a "pipeline" that calls these functions in sequence, passing the return value of one function as the argument to the next.
 
 <details>
@@ -397,13 +408,13 @@ Your task is to refactor the **Character Count** script from the **Cookbook styl
 For example, your `count_frequencies` function in the Cookbook style probably looked like this:
 ```python
 def count_frequencies():
-    global text, counts
-    for char in text:
-        # logic to update global counts
+    global filtered_text, char_counts
+    for char in filtered_text:
+        # logic to update global char_counts
 ```
 In the Pipeline style, it must be transformed to this:
 ```python
-def count_frequencies(input_text):
+def count_frequencies(input_text: str) -> dict:
     local_counts = {}
     for char in input_text:
         # logic to update local_counts
@@ -503,22 +514,43 @@ class WordFrequencyController:
 WordFrequencyController(sys.argv[1]).run()
 ```
 
-#### Exercise: Refactor to the Things Style
-Your task is to refactor the **Character Count** problem into the Things style. Use the Word Frequency implementation above as a guide, thinking about the distinct responsibilities in the problem.
+### Exercise: Refactor to the Things Style
+Your task is to refactor the **Character Count** problem into the Things style. Instead of procedures or a simple pipeline, you will encapsulate the logic into objects that each have a single, clear responsibility.
 
 **Instructions:**
-1.  Start from your "Cookbook" solution for character counting.
-2.  Decompose the logic into a set of classes. A good decomposition would be:
-    *   `DataReader`: Responsible for reading the file and normalizing the text to lowercase. It should have a method that returns the text (e.g., `get_text()`).
-    *   `CharacterFilter`: Responsible for filtering the text, keeping only alphabet characters. It should have a method that takes text and returns the filtered text.
-    *   `FrequencyCounter`: Responsible for counting character frequencies. It should have a method to process text and another to return the sorted results.
-    *   `CharacterCountController`: The main controller that creates instances of the other classes and orchestrates the process by calling their methods in the correct order.
-3.  The main part of your script should create an instance of your `CharacterCountController` and call its main method (e.g., `run()`).
+1.  Decompose the problem into a set of classes that reflect its logical components. A recommended structure is:
+    *   `TextSource`: Is responsible for **Step 1 (Read Data)**.
+        *   Its `__init__` should take a file path.
+        *   It should have a method `get_text()` that returns the raw text content.
+    *   `TextProcessor`: Is responsible for **Steps 2 & 3 (Normalize and Filter)**.
+        *   It should have a `normalize(text)` method.
+        *   It should have a `filter_alphabetic(text)` method.
+    *   `FrequencyAnalyzer`: Is responsible for **Steps 4 & 5 (Count and Sort)**.
+        *   It should have a `count(text)` method that returns a counts dictionary.
+        *   It should have a `sort(counts)` method that returns a sorted list.
+    *   `ResultPrinter`: Is responsible for **Step 6 (Print Results)**.
+        *   It should have a `print_top(sorted_data, n)` method.
+    *   `CharacterCountController`: The main class that orchestrates the process.
+        *   Its `__init__` should take the file path.
+        *   It should create instances of the other component classes.
+        *   It should have a `run()` method that calls the methods on its components in the correct sequence to execute the entire workflow.
+2.  The main part of your script should create an instance of your `CharacterCountController` and call its `run()` method.
 
 <details>
 <summary>Hint</summary>
 
-Think about the "Single Responsibility Principle." Each class you create should have one clear job. For example, `DataReader` should only be concerned with getting data, not with counting it. The controller's job is to wire these single-purpose objects together to solve the larger problem.
+The `CharacterCountController` demonstrates the principle of **composition**. Its `__init__` method will look something like this:
+```python
+class CharacterCountController:
+    def __init__(self, path_to_file):
+        self._source = TextSource(path_to_file)
+        self._processor = TextProcessor()
+        self._analyzer = FrequencyAnalyzer()
+        self._printer = ResultPrinter()
+```
+The `run` method will then use these components: `raw_text = self._source.get_text()`, `normalized = self._processor.normalize(raw_text)`, and so on.
+
+**Design Note:** For this exercise, treat your component objects (`TextProcessor`, `FrequencyAnalyzer`, etc.) as **stateless tools**. Their methods should take data as arguments and return the processed result, rather than storing data in instance attributes (`self._text`, etc.). This makes them reusable and easy to test. The `Controller` is the object responsible for managing the flow of data between these tools during its `run()` method.
 
 </details>
 
@@ -605,23 +637,314 @@ sorted_freqs = sorted(word_freqs.items(), key=operator.itemgetter(1), reverse=Tr
 wf_print(sorted_freqs[:25])
 ```
 
-#### Exercise: Refactor to the Infinite Mirror Style
-Your task is to refactor the **Character Count** problem into the Infinite Mirror style. The core of this exercise is to replace the `for` loops from your previous solutions with recursive functions.
+### Exercise: Refactor to the Infinite Mirror Style
+Your task is to refactor the **Character Count** problem into the Infinite Mirror style. The core of this exercise is to replace any explicit `for` loops that iterate over a data sequence with recursive functions.
 
 **Instructions:**
-1.  Create a recursive function `count_chars(text, counts)`:
-    *   **Base case:** If the `text` string is empty, the function should do nothing and return.
-    *   **Recursive step:** The function should process the first character of the `text` string (checking if it's an alphabet character and updating the `counts` dictionary), and then call itself with the rest of the string (`text[1:]`).
-2.  Create a recursive function `print_freqs(sorted_list)` to print the results.
-3.  In the main part of your script, read the file, normalize the text, and then call your recursive `count_chars` function to populate the `counts` dictionary. Finally, sort the results and use `print_freqs` to display them.
+1.  Start with your **Pipeline style** solution, as its functional decomposition is a good starting point.
+2.  Identify which of your functions use loops to process a sequence. These will be `filter_chars`, `count_frequencies`, and `print_results`.
+3.  Rewrite these three specific functions to use recursion instead of loops:
+    *   `filter_chars_recursive(text: str) -> str`:
+        *   **Base case:** An empty input string returns an empty string.
+        *   **Recursive step:** Process the `head` of the string. If it's a letter, prepend it to the result of recursing on the `tail`. Otherwise, just recurse on the `tail`.
+    *   `count_frequencies_recursive(text: str, counts: dict) -> None`:
+        *   This function will have a side effect on the `counts` dictionary.
+        *   **Base case:** An empty input string does nothing.
+        *   **Recursive step:** Update the `counts` for the `head` of the string, then recurse on the `tail`.
+    *   `print_results_recursive(sorted_data: list, num: int) -> None`:
+        *   **Base case:** An empty list or `num == 0`.
+        *   **Recursive step:** Print the `head` of the list, then recurse on the `tail` with `num - 1`.
+4.  The other functions (`read_file`, `normalize`, `sort`) do not involve sequence iteration in the same way and can remain non-recursive.
+5.  Update your main script to call these new recursive functions.
 
 <details>
 <summary>Hint</summary>
 
-Your recursive `count_chars` function will need to take the `counts` dictionary as an argument so that it can be modified across the recursive calls. This means the function is not "pure" in a strict sense, as it causes a side effect on the dictionary. A purely functional version would have the recursive function *return* the updated dictionary, but for this exercise, mutating the dictionary is acceptable and simpler.
+For `filter_chars_recursive`, the structure will look something like this:
+```python
+def filter_chars_recursive(text):
+    if not text:
+        return ""
+    head = text[0]
+    tail = text[1:]
+    if head.isalpha():
+        return head + filter_chars_recursive(tail)
+    else:
+        return filter_chars_recursive(tail)
+```
+You will need to adapt this pattern for the other required functions.
 
 </details>
 
 ---
 
-## To be continued...
+## 6. The Kick Forward Style (Continuation-Passing)
+The Kick Forward style, known formally as **Continuation-Passing Style (CPS)**, is a powerful functional pattern that makes the flow of control in a program completely explicit. It represents a fundamental shift away from the standard call/return mechanism.
+
+In this style, functions **do not return values**. Instead, they take an extra argument: a **continuation**. A continuation is a function that represents "the rest of the computation." When a function finishes its work, it doesn't return its result to its caller; instead, it calls the continuation function, passing the result to it. The program's execution is a single, continuous chain of function calls, where each function "kicks" its result forward to the next one in the chain.
+
+**Constraints:**
+1.  Functions do not `return` values to their immediate caller.
+2.  Each function takes an additional argument: a continuation function to be called with the result.
+3.  The main program starts the chain by calling the first function and providing it with a continuation that will execute the next step.
+
+This style might seem unusual, but it is a foundational concept in the design of compilers and programming languages. It is also the underlying mechanism for how asynchronous programming (like with callbacks in JavaScript or `async/await` in Python) is often implemented, as it provides a way to handle long-running operations without blocking the program.
+
+### Example: Word Frequency
+Each function takes its data and a continuation. The main function is a series of nested `lambda` functions that explicitly build the chain of continuations. The final continuation in the chain simply prints the results.
+
+```python
+#!/usr/bin/env python
+import sys
+import re
+import operator
+import string
+
+#
+# The functions in Continuation-Passing Style
+#
+def read_file(path_to_file, continuation):
+    """Takes a path and a continuation. Calls the continuation with the file's contents."""
+    with open(path_to_file) as f:
+        data = f.read()
+    continuation(data)
+
+def filter_chars(str_data, continuation):
+    """Takes a string and a continuation. Calls the continuation with a filtered version."""
+    pattern = re.compile('[\W_]+')
+    continuation(pattern.sub(' ', str_data))
+
+def normalize(str_data, continuation):
+    """Takes a string and a continuation. Calls the continuation with the lowercase version."""
+    continuation(str_data.lower())
+
+def scan(str_data, continuation):
+    """Takes a string and a continuation. Calls the continuation with a list of words."""
+    continuation(str_data.split())
+
+def remove_stop_words(word_list, continuation):
+    """Takes a word list and a continuation. Calls the continuation with stop words removed."""
+    stop_words = [
+        'a', 'an', 'and', 'are', 'as', 'at', 'be', 'by', 'for', 'from', 'has', 
+        'he', 'in', 'is', 'it', 'its', 'of', 'on', 'that', 'the', 'to', 'was', 
+        'were', 'will', 'with'
+    ]
+    stop_words.extend(list(string.ascii_lowercase))
+    continuation([w for w in word_list if w not in stop_words])
+
+def frequencies(word_list, continuation):
+    """Takes a word list and a continuation. Calls the continuation with a frequency dict."""
+    word_freqs = {}
+    for w in word_list:
+        word_freqs[w] = word_freqs.get(w, 0) + 1
+    continuation(word_freqs)
+
+def sort(word_freqs, continuation):
+    """Takes a frequency dict and a continuation. Calls the continuation with a sorted list."""
+    continuation(sorted(word_freqs.items(), key=operator.itemgetter(1), reverse=True))
+
+def print_results(sorted_data):
+    """The final function in the chain. It has no continuation."""
+    for word, freq in sorted_data[0:25]:
+        print(word, '-', freq)
+
+#
+# The main function, which builds the chain of continuations
+#
+read_file(sys.argv[1], lambda text:
+    filter_chars(text, lambda filtered_text:
+    normalize(filtered_text, lambda normalized_text:
+    scan(normalized_text, lambda words:
+    remove_stop_words(words, lambda filtered_words:
+    frequencies(filtered_words, lambda freqs:
+    sort(freqs, lambda sorted_freqs:
+    print_results(sorted_freqs)
+)))))))
+```
+
+#### Exercise: Refactor to the Kick Forward Style
+Your task is to refactor the **Character Count** script into the Kick Forward (Continuation-Passing) style. You will transform your pure functions from the Pipeline style into functions that use continuations.
+
+**Instructions:**
+1.  Start with your solution from the **Pipeline Style** exercise.
+2.  Modify the signature of each of your first five functions (`read_file`, `normalize`, `filter_chars`, `count_frequencies`, `sort`). Each one should now take its normal input argument plus a final `continuation` function argument.
+3.  Modify the body of each of these functions. Instead of `return result`, each function must now end by calling `continuation(result)`.
+4.  Your `print_results` function will be the final step and does not need a continuation.
+5.  Rewrite the main part of your script to be a series of nested `lambda` functions that explicitly define the "rest of the computation" at each step. This will start with the call to `read_file` and end with the call to `print_results`.
+
+<details>
+<summary>Hint</summary>
+
+Here is a before-and-after example for the `normalize` function.
+
+**Before (Pipeline Style):**
+```python
+def normalize(text: str) -> str:
+    return text.lower()
+```
+
+**After (Kick Forward Style):**
+```python
+def normalize(text: str, continuation):
+    result = text.lower()
+    continuation(result) # Instead of returning, we call the continuation
+```
+
+Your main execution block will be a single, nested expression that wires these functions together. It will look like this:
+```python
+read_file(sys.argv[1], lambda raw_text:
+    normalize(raw_text, lambda normalized_text:
+        # ... continue the chain here ...
+            sort(counts, lambda sorted_list:
+                print_results(sorted_list)
+            )
+        # ...
+    )
+)
+```
+
+</details>
+
+---
+
+## 7. The One Style (Monadic)
+The One style offers a highly structured and elegant way to sequence computations. It takes the pure functions from the Pipeline style and provides a new mechanism for composing them. The core idea is to create a "wrapper" or "container" object that holds a value as it moves through a processing pipeline.
+
+This object, which we'll call "The One," has a central method, typically named `bind`. The `bind` method takes a function as an argument, applies that function to the value currently held inside the wrapper, updates the wrapper's internal value with the result, and - most importantly - returns the wrapper object itself. This ability to return `self` is what enables the creation of a clean, linear chain of method calls.
+
+This pattern is a simplified implementation of a powerful concept from functional programming known as a **Monad**. It allows us to abstract away the mechanics of sequencing and focus entirely on the transformations themselves.
+
+**Constraints:**
+1.  A central "wrapper" class is defined to hold the data being processed.
+2.  This class has a `bind` method that takes a function and applies it to the wrapped value.
+3.  The `bind` method must return the wrapper instance (`self`) to enable method chaining.
+4.  The main program logic is expressed as a single, continuous chain of `bind` calls.
+
+### Example: Word Frequency
+In this implementation, the `TFTheOne` class acts as the monadic wrapper. The main function creates an instance with the initial file path and then uses a chain of `.bind()` calls to apply each processing function in sequence. A final function, `top25_freqs`, is used to format the data into a string, which is then printed by a terminal method.
+
+```python
+#!/usr/bin/env python
+import sys
+import re
+import operator
+import string
+
+#
+# The "wrapper" class for this style
+#
+class TFTheOne:
+    def __init__(self, v):
+        """Initializes the wrapper with a starting value."""
+        self._value = v
+
+    def bind(self, func):
+        """Applies a function to the internal value and returns self."""
+        self._value = func(self._value)
+        return self
+
+    def printme(self):
+        """A terminal action to print the final value."""
+        print(self._value)
+
+#
+# The pure functions (same as the Pipeline style)
+#
+def read_file(path_to_file):
+    with open(path_to_file) as f:
+        return f.read()
+
+def filter_chars(str_data):
+    pattern = re.compile('[\W_]+')
+    return pattern.sub(' ', str_data)
+
+def normalize(str_data):
+    return str_data.lower()
+
+def scan(str_data):
+    return str_data.split()
+
+def remove_stop_words(word_list):
+    stop_words = [
+        'a', 'an', 'and', 'are', 'as', 'at', 'be', 'by', 'for', 'from', 'has', 
+        'he', 'in', 'is', 'it', 'its', 'of', 'on', 'that', 'the', 'to', 'was', 
+        'were', 'will', 'with'
+    ]
+    stop_words.extend(list(string.ascii_lowercase))
+    return [w for w in word_list if w not in stop_words]
+
+def frequencies(word_list):
+    word_freqs = {}
+    for w in word_list:
+        word_freqs[w] = word_freqs.get(w, 0) + 1
+    return word_freqs
+
+def sort(word_freqs):
+    return sorted(word_freqs.items(), key=operator.itemgetter(1), reverse=True)
+
+def top25_freqs(word_freqs):
+    """Takes the sorted list and returns a single formatted string."""
+    top25_lines = []
+    for tf in word_freqs[0:25]:
+        top25_lines.append(f"{tf[0]} - {tf[1]}")
+    return "\n".join(top25_lines)
+
+#
+# The main function, expressed as a single chain
+#
+TFTheOne(sys.argv[1])\
+    .bind(read_file)\
+    .bind(filter_chars)\
+    .bind(normalize)\
+    .bind(scan)\
+    .bind(remove_stop_words)\
+    .bind(frequencies)\
+    .bind(sort)\
+    .bind(top25_freqs)\
+    .printme()
+```
+
+#### Exercise: Refactor to The One Style
+Your task is to refactor the **Character Count** script into The One (Monadic) style. You will create a wrapper class and use it to chain together the pure functions you developed for the Pipeline style.
+
+**Instructions:**
+1.  Start with your pure functions from the **Pipeline Style** exercise. You will use these as the operations in your chain.
+2.  Create a new wrapper class, e.g., `CharCountMonad`.
+3.  Implement the `__init__(self, value)` method to store the initial value.
+4.  Implement the `bind(self, func)` method. It must apply `func` to `self._value`, update `self._value` with the result, and `return self`.
+5.  Create one new function, `format_results(sorted_data)`, which takes your sorted list of `(char, count)` pairs and returns a single, multi-line string suitable for printing.
+6.  Implement a final method in your `CharCountMonad` class, `print_value()`, that simply prints the `self._value`.
+7.  Rewrite the main part of your script to be a single, chained expression that:
+    *   Initializes your `CharCountMonad` with the file path.
+    *   Calls `bind` for each of your processing functions (`read_file`, `normalize`, `filter_chars`, `count_frequencies`, `sort`, and `format_results`).
+    *   Ends with a call to `print_value()`.
+
+<details>
+<summary>Hint</summary>
+
+Your `bind` method is the core of this style. Its implementation is very direct:
+```python
+def bind(self, func):
+    self._value = func(self._value)
+    return self
+```
+The reason you need a new `format_results` function is to prepare the data for the simple `print_value()` method. Your `print_results` function from the Pipeline style performs a loop and prints multiple lines, which is a complex action. The monadic style works best when the functions bound are pure transformations, and the final action is as simple as possible.
+
+Your final chain will look like this:
+```python
+CharCountMonad(sys.argv[1])\
+    .bind(read_file)\
+    .bind(normalize)\
+    # ... other functions ...
+    .bind(format_results)\
+    .print_value()
+```
+
+</details>
+
+---
+
+**Topic 3: Variations in Object-Oriented Design**
+
+## 8. The Letterbox Style (Message Passing)
+... *(To be continued)* ...
