@@ -515,26 +515,24 @@ WordFrequencyController(sys.argv[1]).run()
 ```
 
 ### Exercise: Refactor to the Things Style
-Your task is to refactor the **Character Count** problem into the Things style. Instead of procedures or a simple pipeline, you will encapsulate the logic into objects that each have a single, clear responsibility.
+Your task is to refactor the **Character Count** problem into the Things style. You will encapsulate the logic into objects. According to the "Things" definition, these objects should be **capsules of data** that expose procedures to the rest of the world.
 
 **Instructions:**
-1.  Decompose the problem into a set of classes that reflect its logical components. A recommended structure is:
+1.  Decompose the problem into classes.
     *   `TextSource`: Is responsible for **Step 1 (Read Data)**.
-        *   Its `__init__` should take a file path.
-        *   It should have a method `get_text()` that returns the raw text content.
+        *   Its `__init__` takes a file path, reads the file, and stores the raw text in `self._text`.
+        *   It exposes a method `get_text()` to provide this data to others.
     *   `TextProcessor`: Is responsible for **Steps 2 & 3 (Normalize and Filter)**.
-        *   It should have a `normalize(text)` method.
-        *   It should have a `filter_alphabetic(text)` method.
-    *   `FrequencyAnalyzer`: Is responsible for **Steps 4 & 5 (Count and Sort)**.
-        *   It should have a `count(text)` method that returns a counts dictionary.
-        *   It should have a `sort(counts)` method that returns a sorted list.
-    *   `ResultPrinter`: Is responsible for **Step 6 (Print Results)**.
-        *   It should have a `print_top(sorted_data, n)` method.
-    *   `CharacterCountController`: The main class that orchestrates the process.
-        *   Its `__init__` should take the file path.
-        *   It should create instances of the other component classes.
-        *   It should have a `run()` method that calls the methods on its components in the correct sequence to execute the entire workflow.
-2.  The main part of your script should create an instance of your `CharacterCountController` and call its `run()` method.
+        *   It can be implemented as a stateless service or hold the text internally.
+        *   It must provide methods to `normalize` and `filter` text.
+    *   `FrequencyAnalyzer`: Is responsible for **Step 4 (Count)**.
+        *   This object must encapsulate the state. It should initialize an empty dictionary `self._counts`.
+        *   It should have a method `ingest(text)` (or similar) that takes text and updates the internal `self._counts` dictionary.
+        *   It should *not* return the counts immediately. The data stays hidden inside.
+    *   `ResultPresenter`: Is responsible for **Step 5 & 6 (Sort and Print)**.
+        *   It should have a method that takes the `FrequencyAnalyzer` (or its data), sorts it, and prints the results.
+    *   `CharacterCountController`: The main class.
+        *   Its `run()` method coordinates the flow: getting text from Source, passing it through Processor, feeding it into Analyzer, and finally asking Presenter to show the results.
 
 <details>
 <summary>Hint</summary>
@@ -548,9 +546,7 @@ class CharacterCountController:
         self._analyzer = FrequencyAnalyzer()
         self._printer = ResultPrinter()
 ```
-The `run` method will then use these components: `raw_text = self._source.get_text()`, `normalized = self._processor.normalize(raw_text)`, and so on.
-
-**Design Note:** For this exercise, treat your component objects (`TextProcessor`, `FrequencyAnalyzer`, etc.) as **stateless tools**. Their methods should take data as arguments and return the processed result, rather than storing data in instance attributes (`self._text`, etc.). This makes them reusable and easy to test. The `Controller` is the object responsible for managing the flow of data between these tools during its `run()` method.
+The `run` method will then use these components: `raw_text = self._source.get_text()`, and so on.
 
 </details>
 
