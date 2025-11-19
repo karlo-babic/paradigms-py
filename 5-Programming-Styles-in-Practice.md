@@ -656,19 +656,34 @@ Your task is to refactor the **Character Count** problem into the Infinite Mirro
 <details>
 <summary>Hint</summary>
 
-For `filter_chars_recursive`, the structure will look something like this:
+**`filter_chars_recursive(text)`:**
 ```python
 def filter_chars_recursive(text):
-    if not text:
-        return ""
+    if not text: return ""
     head = text[0]
-    tail = text[1:]
     if head.isalpha():
-        return head + filter_chars_recursive(tail)
+        return head + filter_chars_recursive(text[1:])
     else:
-        return filter_chars_recursive(tail)
+        return filter_chars_recursive(text[1:])
 ```
-You will need to adapt this pattern for the other required functions.
+
+**`count_frequencies_recursive(text, counts)`:**
+This function does not need to return anything; it modifies the `counts` dictionary in place.
+```python
+def count_frequencies_recursive(text, counts):
+    if not text: return
+    # Update counts for text[0]
+    # Recurse on text[1:]
+```
+
+**`print_results_recursive(sorted_data, n)`:**
+This function needs a counter `n` to know when to stop printing (e.g., after 25 lines).
+```python
+def print_results_recursive(sorted_data, n):
+    if n == 0 or not sorted_data: return
+    # Print sorted_data[0]
+    # Recurse on sorted_data[1:] with n-1
+```
 
 </details>
 
