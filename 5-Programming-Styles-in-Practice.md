@@ -1263,7 +1263,7 @@ The pattern for stateful methods in this style is:
 ## 10. The Bulletin Board Style (Publish-Subscribe)
 This style represents the logical endpoint of loose coupling. In the **Letterbox** style, components were decoupled but still had to know *who* to send a message to. In the **Bulletin Board** style, this link is broken completely.
 
-Entities in this system never communicate directly. Instead, they use a central infrastructure—the "Bulletin Board" or **Event Manager**.
+Entities in this system never communicate directly. Instead, they use a central infrastructure - the "Bulletin Board" or **Event Manager**.
 *   If an entity wants to do something, it **subscribes** to a specific event type (e.g., "I want to know when a file is loaded").
 *   If an entity has information or has finished a task, it **publishes** an event (e.g., "A file has been loaded, here is the path").
 
