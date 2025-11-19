@@ -25,7 +25,8 @@ In this chapter, we will follow this approach. For each style, we will first pre
 - **Topic 3: Variations in Object-Oriented Design**
   - [8. The Letterbox Style (Message Passing)](#the-letterbox-style-message-passing)
   - [9. The Closed Maps Style (Prototype-Based)](#the-closed-maps-style-prototype-based)
-- [10. Chapter Summary](#chapter-summary)
+  - [10. The Bulletin Board Style (Publish-Subscribe)](#the-bulletin-board-style-publish-subscribe)
+- [11. Chapter Summary](#chapter-summary)
 
 ---
 
@@ -957,5 +958,523 @@ CharCountMonad(sys.argv[1])\
 
 **Topic 3: Variations in Object-Oriented Design**
 
+In the "Things" style, we explored standard Object-Oriented Programming, where objects expose a set of public methods that other objects call directly. This section explores variations of that design, starting with a style that takes the metaphor of "sending messages" literally.
+
 ## 8. The Letterbox Style (Message Passing)
-... *(To be continued)* ...
+The Letterbox style creates a much stricter boundary between objects. In standard OOP, if you want an object to do something, you call a specific method by name (e.g., `analyzer.count(text)`). This requires the caller to know exactly which methods the object has.
+
+In the Letterbox style, objects are opaque capsules that expose only **one single public operation**, typically called `dispatch` or `receive`. To get an object to do something, you "send it a message" via this method. The message acts like a letter dropped into a mailbox: it contains a subject (the action to perform) and a body (the data needed). The receiving object opens the message, looks at the subject, and decides internally which private method to run.
+
+**Constraints:**
+1.  The problem is decomposed into objects (things).
+2.  Each object exposes only one public method, `dispatch(message)`.
+3.  The `message` is a data structure (like a list or tuple) containing a command identifier and arguments.
+4.  All actual logic is hidden in private methods, which are invoked only by the `dispatch` method.
+
+This style simulates the **Actor Model** of concurrency or the original design philosophy of Smalltalk. It creates a system where components are loosely coupled; the caller only needs to know how to send a message, not the internal details of the receiver's class structure.
+
+### Example: Word Frequency
+In this implementation, every class looks identical from the outside: they all have a `dispatch` method. The main controller doesn't call `_increment_count` directly; it sends a message `['increment_count', word]`.
+
+```python
+#!/usr/bin/env python
+import sys
+import re
+import operator
+import string
+
+class DataStorageManager:
+    """ Models the contents of the file """
+    _data = ''
+
+    def dispatch(self, message):
+        """The single entry point for this object."""
+        if message[0] == 'init':
+            return self._init(message[1])
+        elif message[0] == 'words':
+            return self._words()
+        else:
+            raise Exception("Message not understood: " + message[0])
+ 
+    def _init(self, path_to_file):
+        with open(path_to_file) as f:
+            self._data = f.read()
+        pattern = re.compile('[\W_]+')
+        self._data = pattern.sub(' ', self._data).lower()
+
+    def _words(self):
+        """ Returns the list words in storage"""
+        data_str = ''.join(self._data)
+        return data_str.split()
+
+class StopWordManager:
+    """ Models the stop word filter """
+    _stop_words = []
+
+    def dispatch(self, message):
+        if message[0] == 'init':
+            return self._init()
+        elif message[0] == 'is_stop_word':
+            return self._is_stop_word(message[1])
+        else:
+            raise Exception("Message not understood: " + message[0])
+ 
+    def _init(self):
+        stop_words = [
+            'a', 'an', 'and', 'are', 'as', 'at', 'be', 'by', 'for', 'from', 'has', 
+            'he', 'in', 'is', 'it', 'its', 'of', 'on', 'that', 'the', 'to', 'was', 
+            'were', 'will', 'with'
+        ]
+        stop_words.extend(list(string.ascii_lowercase))
+        self._stop_words = stop_words
+
+    def _is_stop_word(self, word):
+        return word in self._stop_words
+
+class WordFrequencyManager:
+    """ Keeps the word frequency data """
+    _word_freqs = {}
+
+    def dispatch(self, message):
+        if message[0] == 'increment_count':
+            return self._increment_count(message[1])
+        elif message[0] == 'sorted':
+            return self._sorted()
+        else:
+            raise Exception("Message not understood: " + message[0])
+ 
+    def _increment_count(self, word):
+        if word in self._word_freqs:
+            self._word_freqs[word] += 1
+        else:
+            self._word_freqs[word] = 1
+
+    def _sorted(self):
+        return sorted(self._word_freqs.items(), key=operator.itemgetter(1), reverse=True)
+
+class WordFrequencyController:
+    def dispatch(self, message):
+        if message[0] == 'init':
+            return self._init(message[1])
+        elif message[0] == 'run':
+            return self._run()
+        else:
+            raise Exception("Message not understood: " + message[0])
+ 
+    def _init(self, path_to_file):
+        self._storage_manager = DataStorageManager()
+        self._stop_word_manager = StopWordManager()
+        self._word_freq_manager = WordFrequencyManager()
+        
+        # Send messages to initialize components
+        self._storage_manager.dispatch(['init', path_to_file])
+        self._stop_word_manager.dispatch(['init'])
+
+    def _run(self):
+        # Send a message to get words
+        words = self._storage_manager.dispatch(['words'])
+        for w in words:
+            # Send a message to check if it's a stop word
+            if not self._stop_word_manager.dispatch(['is_stop_word', w]):
+                # Send a message to increment count
+                self._word_freq_manager.dispatch(['increment_count', w])
+
+        # Send a message to get sorted results
+        word_freqs = self._word_freq_manager.dispatch(['sorted'])
+        for (w, c) in word_freqs[0:25]:
+            print(w, '-', c)
+
+#
+# The main function
+#
+wfcontroller = WordFrequencyController()
+wfcontroller.dispatch(['init', sys.argv[1]])
+wfcontroller.dispatch(['run'])
+```
+
+#### Exercise: Refactor to the Letterbox Style
+Your task is to refactor the **Character Count** problem into the Letterbox style. You will start with the class structure from the "Things" style but alter how the objects interact.
+
+**Instructions:**
+1.  Use the same decomposition as the "Things" style (`TextSource`, `TextProcessor`, `FrequencyAnalyzer`, `CharacterCountController`, etc.).
+2.  Modify every class so that it has only **one public method**: `dispatch(self, message)`.
+3.  The `message` should be a list where the first element is the command name (e.g., `['get_text']` or `['normalize', text]`).
+4.  Move all your original logic (like `get_text`, `normalize`, `count`) into internal methods (e.g., `_get_text`, `_normalize`, `_count`).
+5.  Implement the `dispatch` method in each class to route the message to the correct internal method.
+6.  Update the `CharacterCountController` to instantiate the objects and then interact with them *only* by calling `.dispatch()`.
+
+<details>
+<summary>Hint</summary>
+
+For the `TextProcessor`, your dispatch method might look like this:
+
+```python
+class TextProcessor:
+    def dispatch(self, message):
+        if message[0] == 'normalize':
+            return self._normalize(message[1])
+        elif message[0] == 'filter':
+            return self._filter(message[1])
+        else:
+            raise ValueError("Unknown message")
+
+    def _normalize(self, text):
+        return text.lower()
+    # ... etc ...
+```
+
+</details>
+
+---
+
+## 9. The Closed Maps Style (Prototype-Based)
+This style takes a different perspective on object-oriented programming. In languages like Java or Python (classes), an object is an *instance* of a *class*. The class defines the structure, and the object holds the data.
+
+In the **Closed Maps** style, which mimics **Prototype-based programming** (like in JavaScript or Lua), there are no classes. An "object" is simply a map (or dictionary) that relates keys to values.
+*   Some values are data (state).
+*   Other values are functions (procedures).
+
+Crucially, the functions inside the map **"close over"** the map itself. They refer to the specific map instance to access or modify its data slots. This creates self-contained objects without the need for formal class definitions.
+
+**Constraints:**
+1.  The problem is decomposed into "things" (objects).
+2.  Each thing is represented as a dictionary (map).
+3.  Functions (methods) are stored as values within the map.
+4.  These functions refer to the map variable itself to access other data within the map.
+
+### Example: Word Frequency
+In this implementation, `data_storage_obj`, `stop_words_obj`, and `word_freqs_obj` are just dictionaries. We define auxiliary functions (like `extract_words`) to handle complex logic because Python's `lambda` functions are limited to a single expression. Notice how the lambdas explicitly pass the dictionary object (`data_storage_obj`) into the auxiliary functions.
+
+```python
+#!/usr/bin/env python
+import sys
+import re
+import operator
+import string
+
+#
+# Auxiliary functions (implementation details)
+# These are needed because Python lambdas are limited to one expression.
+#
+def extract_words(obj, path_to_file):
+    """Reads file and populates the 'data' slot of the object."""
+    with open(path_to_file) as f:
+        obj['data'] = f.read()
+    pattern = re.compile('[\W_]+')
+    data_str = ''.join(pattern.sub(' ', obj['data']).lower())
+    obj['data'] = data_str.split()
+
+def load_stop_words(obj):
+    """Populates the 'stop_words' slot of the object."""
+    stop_words = [
+        'a', 'an', 'and', 'are', 'as', 'at', 'be', 'by', 'for', 'from', 'has', 
+        'he', 'in', 'is', 'it', 'its', 'of', 'on', 'that', 'the', 'to', 'was', 
+        'were', 'will', 'with'
+    ]
+    stop_words.extend(list(string.ascii_lowercase))
+    obj['stop_words'] = stop_words
+
+def increment_count(obj, w):
+    """Updates the 'freqs' slot of the object."""
+    if w in obj['freqs']:
+        obj['freqs'][w] += 1
+    else:
+        obj['freqs'][w] = 1
+
+#
+# The "Objects" (Closed Maps)
+#
+data_storage_obj = {
+    'data' : [],
+    # The lambda captures 'data_storage_obj' to pass it to the function
+    'init' : lambda path_to_file : extract_words(data_storage_obj, path_to_file),
+    'words' : lambda : data_storage_obj['data']
+}
+
+stop_words_obj = {
+    'stop_words' : [],
+    'init' : lambda : load_stop_words(stop_words_obj),
+    'is_stop_word' : lambda word : word in stop_words_obj['stop_words']
+}
+
+word_freqs_obj = {
+    'freqs' : {},
+    'increment_count' : lambda w : increment_count(word_freqs_obj, w),
+    'sorted' : lambda : sorted(word_freqs_obj['freqs'].items(), key=operator.itemgetter(1), reverse=True)
+}
+
+#
+# The main execution logic
+#
+data_storage_obj['init'](sys.argv[1])
+stop_words_obj['init']()
+
+for w in data_storage_obj['words']():
+    if not stop_words_obj['is_stop_word'](w):
+        word_freqs_obj['increment_count'](w)
+
+word_freqs = word_freqs_obj['sorted']()
+for (w, c) in word_freqs[0:25]:
+    print(w, '-', c)
+```
+
+#### Exercise: Refactor to the Closed Maps Style
+Your task is to refactor the **Character Count** problem into the Closed Maps style. You will replace your classes with dictionaries.
+
+**Instructions:**
+1.  Instead of a `TextSource` class, create a `text_source_obj` dictionary.
+    *   It should have a `'text'` key to store data.
+    *   It should have an `'init'` key holding a function that reads the file and populates `'text'`.
+    *   It should have a `'get_text'` key holding a function that returns the text.
+2.  Create a `frequency_analyzer_obj` dictionary.
+    *   It should have a `'counts'` key (initially an empty dict).
+    *   It should have a `'count'` key holding a function that updates `'counts'`.
+    *   It should have a `'get_sorted'` key.
+3.  You may define standard Python functions (like `_read_file_impl(obj, path)`) to implement the logic if it's too complex for a lambda, and then bind them in the dictionary: `'init': lambda path: _read_file_impl(text_source_obj, path)`.
+4.  Write the main script to use these dictionary "objects" to solve the problem.
+
+<details>
+<summary>Hint</summary>
+
+The pattern for stateful methods in this style is:
+
+1.  Define the logic as a standalone function that takes the object (dictionary) as its first argument.
+    ```python
+    def _count_impl(my_obj, text):
+        for char in text:
+            my_obj['counts'][char] = ...
+    ```
+2.  Bind it in the dictionary using a lambda that captures the specific dictionary variable.
+    ```python
+    analyzer_obj = {
+        'counts': {},
+        'count': lambda text: _count_impl(analyzer_obj, text)
+    }
+    ```
+3.  Call it via the key:
+    ```python
+    analyzer_obj['count']("hello")
+    ```
+
+</details>
+
+---
+
+## 10. The Bulletin Board Style (Publish-Subscribe)
+This style represents the logical endpoint of loose coupling. In the **Letterbox** style, components were decoupled but still had to know *who* to send a message to. In the **Bulletin Board** style, this link is broken completely.
+
+Entities in this system never communicate directly. Instead, they use a central infrastructure—the "Bulletin Board" or **Event Manager**.
+*   If an entity wants to do something, it **subscribes** to a specific event type (e.g., "I want to know when a file is loaded").
+*   If an entity has information or has finished a task, it **publishes** an event (e.g., "A file has been loaded, here is the path").
+
+This architecture, formally known as **Publish-Subscribe** or **Event-Driven**, allows for systems where components can be added, removed, or modified without ever touching the code of the other components.
+
+**Constraints:**
+1.  The problem is decomposed into entities (objects).
+2.  Entities **never** call each other directly.
+3.  There is a central `EventManager` that handles subscriptions and publishing.
+4.  Entities communicate exclusively by publishing events and subscribing to event types.
+
+### Example: Word Frequency
+In this implementation, notice that the `DataStorage` class does not know that `StopWordFilter` exists. It simply publishes a `word` event. Any number of components could be listening to that event. The flow of the program is determined by the chain of events: `run` $\to$ `load` $\to$ `start` $\to$ `word` $\to$ `valid_word` $\to$ `print`.
+
+```python
+#!/usr/bin/env python
+import sys
+import re
+import operator
+import string
+
+#
+# The Event Management Substrate (The "Bulletin Board")
+#
+class EventManager:
+    def __init__(self):
+        self._subscriptions = {}
+
+    def subscribe(self, event_type, handler):
+        """Registers a function to be called when event_type occurs."""
+        if event_type in self._subscriptions:
+            self._subscriptions[event_type].append(handler)
+        else:
+            self._subscriptions[event_type] = [handler]
+
+    def publish(self, event):
+        """Broadcasts an event to all subscribers."""
+        event_type = event[0]
+        if event_type in self._subscriptions:
+            for h in self._subscriptions[event_type]:
+                h(event)
+
+#
+# The Application Entities
+#
+class DataStorage:
+    """ Models the contents of the file """
+    def __init__(self, event_manager):
+        self._event_manager = event_manager
+        self._event_manager.subscribe('load', self.load)
+        self._event_manager.subscribe('start', self.produce_words)
+
+    def load(self, event):
+        path_to_file = event[1]
+        with open(path_to_file) as f:
+            self._data = f.read()
+        pattern = re.compile('[\W_]+')
+        self._data = pattern.sub(' ', self._data).lower()
+
+    def produce_words(self, event):
+        data_str = ''.join(self._data)
+        for w in data_str.split():
+            # Publish every word as an event
+            self._event_manager.publish(('word', w))
+        # Signal that we are finished
+        self._event_manager.publish(('eof', None))
+
+class StopWordFilter:
+    """ Models the stop word filter """
+    def __init__(self, event_manager):
+        self._stop_words = []
+        self._event_manager = event_manager
+        self._event_manager.subscribe('load', self.load)
+        self._event_manager.subscribe('word', self.is_stop_word)
+
+    def load(self, event):
+        with open('../stop_words.txt') as f:
+            self._stop_words = f.read().split(',')
+        self._stop_words.extend(list(string.ascii_lowercase))
+
+    def is_stop_word(self, event):
+        word = event[1]
+        if word not in self._stop_words:
+            self._event_manager.publish(('valid_word', word))
+
+class WordFrequencyCounter:
+    """ Keeps the word frequency data """
+    def __init__(self, event_manager):
+        self._word_freqs = {}
+        self._event_manager = event_manager
+        self._event_manager.subscribe('valid_word', self.increment_count)
+        self._event_manager.subscribe('print', self.print_freqs)
+
+    def increment_count(self, event):
+        word = event[1]
+        if word in self._word_freqs:
+            self._word_freqs[word] += 1
+        else:
+            self._word_freqs[word] = 1
+
+    def print_freqs(self, event):
+        word_freqs = sorted(self._word_freqs.items(), key=operator.itemgetter(1), reverse=True)
+        for (w, c) in word_freqs[0:25]:
+            print(w, '-', c)
+
+class WordFrequencyApplication:
+    """ The main application controller """
+    def __init__(self, event_manager):
+        self._event_manager = event_manager
+        self._event_manager.subscribe('run', self.run)
+        self._event_manager.subscribe('eof', self.stop)
+
+    def run(self, event):
+        path_to_file = event[1]
+        self._event_manager.publish(('load', path_to_file))
+        self._event_manager.publish(('start', None))
+
+    def stop(self, event):
+        self._event_manager.publish(('print', None))
+
+#
+# The main function
+#
+em = EventManager()
+# Instantiate components (they automatically subscribe themselves)
+DataStorage(em)
+StopWordFilter(em)
+WordFrequencyCounter(em)
+WordFrequencyApplication(em)
+
+# Kick off the entire chain with one event
+em.publish(('run', sys.argv[1]))
+```
+
+### Exercise: Refactor to the Bulletin Board Style
+Your task is to refactor the **Character Count** problem into the Bulletin Board style.
+*Note: To keep your script efficient, you should use events to pass "batches" of data (e.g., the whole text string) rather than publishing an event for every single word or character.*
+
+**Instructions:**
+1.  Copy the `EventManager` class from the example.
+2.  Create your components (`TextSource`, `FrequencyAnalyzer`, `ResultPresenter`, `Application`).
+3.  **TextSource:**
+    *   Subscribes to `run` (which contains the filename).
+    *   Reads, normalizes, and filters the file content.
+    *   Publishes a `text_ready` event with the **entire filtered string** as the payload.
+4.  **FrequencyAnalyzer:**
+    *   Subscribes to `text_ready`.
+    *   When it receives the text, it iterates through it to count the frequencies.
+    *   When finished counting, it publishes `analysis_complete` with the **counts dictionary** (or sorted list) as the payload.
+5.  **ResultPresenter:**
+    *   Subscribes to `analysis_complete`.
+    *   Sorts (if necessary) and prints the results.
+6.  **Application:**
+    *   Sets up the subscriptions and publishes the initial `run` event.
+
+<details>
+<summary>Hint</summary>
+
+Here is how the `TextSource` component might look. Notice how it doesn't know *who* receives the data, only that it should announce when the text is ready.
+
+```python
+class TextSource:
+    def __init__(self, em):
+        self._em = em
+        # Listen for the signal to start processing
+        self._em.subscribe('run', self.process_file)
+
+    def process_file(self, event):
+        filename = event[1] # The payload is the second element
+        # ... [logic to read, normalize, and filter] ...
+        filtered_text = "..."
+        
+        # Announce that work is done and pass the result
+        self._em.publish(('text_ready', filtered_text))
+```
+
+**Important Tips:**
+*   **Order Matters:** You must create instances of all your component classes *before* you publish the initial `run` event. If a component hasn't been instantiated, it hasn't subscribed yet, and it will miss the message.
+*   **The Event Tuple:** Remember that your event is a tuple like `('name', data)`. Access your payload using `event[1]`.
+
+</details>
+
+---
+
+## 11. Chapter Summary
+
+In this chapter, we moved from high-level paradigms to concrete **programming styles**. We saw that a single problem - counting word (or character) frequencies - can be solved in radically different ways, even within the same language. Each style offers a different perspective on how to organize code and data.
+
+We explored three main categories of styles:
+
+### 1. Foundational Decomposition
+These styles focus on how to break a large problem into smaller pieces.
+*   **Monolithic:** No decomposition. A single, linear flow. Useful only as a baseline or for trivial scripts.
+*   **Cookbook:** Procedural decomposition with shared mutable state. Simple to write, but hard to manage as programs grow due to side effects.
+*   **Pipeline:** Functional decomposition. Pure functions chained together with explicit data flow. Highly testable and predictable.
+*   **Things (Objects):** Object-oriented decomposition. Encapsulating state and behavior into cohesive units (classes) to manage complexity.
+
+### 2. Functional Composition
+These styles leverage the power of functions as first-class citizens.
+*   **Infinite Mirror (Recursion):** Using induction to solve problems by breaking them down into base cases and recursive steps.
+*   **Kick Forward (CPS):** Explicit control flow where functions never return but pass their result to a "continuation" function.
+*   **The One (Monadic):** abstracting the sequencing of operations into a wrapper object that handles the flow, allowing for clean, linear chains of transformations.
+
+### 3. Object Variations
+These styles showed that "Object-Oriented" is not a single, monolithic idea.
+*   **Letterbox:** Objects as isolated actors that communicate only via messages, enforcing strict decoupling.
+*   **Closed Maps:** Objects as simple dictionaries (prototypes), demonstrating that you don't need classes to have encapsulation and polymorphism.
+*   **Bulletin Board:** Decoupling components entirely via a central event manager (publish/subscribe), a pattern widely used in GUIs and distributed systems.
+
+### The Takeaway
+Why learn these styles if you will likely just write "standard" Python code?
+1.  **Reading Code:** You will encounter all of these styles in the wild. The **Bulletin Board** style is how almost all user interface (UI) frameworks work. The **Kick Forward** style is the conceptual basis for asynchronous programming. The **Monadic** style is the foundation of error handling and data processing in powerful languages like Haskell and Rust.
+2.  **Design Choices:** When you face a new problem, you now have a toolbox. Does this problem need a pipeline of data transformations? Use the **Pipeline** style. Does it involve complex state management? Use the **Things** style.
+3.  **Constraints are Good:** By forcing yourself to write code under strict constraints (e.g., "no shared state" or "no return values"), you break bad habits and learn to think more deeply about how your code works.
