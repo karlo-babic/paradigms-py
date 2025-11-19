@@ -662,9 +662,9 @@ def filter_chars_recursive(text):
     if not text: return ""
     head = text[0]
     if head.isalpha():
-        return head + filter_chars_recursive(text[1:])
+        return ...
     else:
-        return filter_chars_recursive(text[1:])
+        return ...
 ```
 
 **`count_frequencies_recursive(text, counts)`:**
