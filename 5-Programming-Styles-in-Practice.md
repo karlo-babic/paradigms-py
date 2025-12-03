@@ -1276,7 +1276,7 @@ This architecture, formally known as **Publish-Subscribe** or **Event-Driven**, 
 4.  Entities communicate exclusively by publishing events and subscribing to event types.
 
 ### Example: Word Frequency
-In this implementation, notice that the `DataStorage` class does not know that `StopWordFilter` exists. It simply publishes a `word` event. Any number of components could be listening to that event. The flow of the program is determined by the chain of events: `run` $\to$ `load` $\to$ `start` $\to$ `word` $\to$ `valid_word` $\to$ `print`.
+In this implementation, notice that the `DataStorage` class does not know that `StopWordFilter` exists. It simply publishes a `word` event. Any number of components could be listening to that event. The flow of the program is determined by the chain of events: `run`, `load`, `start`, `word`, `valid_word`, `print`.
 
 ```python
 #!/usr/bin/env python
@@ -1396,6 +1396,54 @@ WordFrequencyApplication(em)
 
 # Kick off the entire chain with one event
 em.publish(('run', sys.argv[1]))
+```
+
+### A Minimal Example
+To clearly see the decoupling, here is the absolute minimum implementation. It uses two components - a Greeter and a Printer - that never interact directly. If you delete the Printer class, the Greeter continues to work without errors; it simply publishes messages to a board that no one reads.
+
+```python
+# The Bulletin Board
+class EventManager:
+    def __init__(self):
+        self.subs = {}
+
+    def subscribe(self, name, func):
+        if name not in self.subs: self.subs[name] = []
+        self.subs[name].append(func)
+
+    def publish(self, name, data):
+        if name in self.subs:
+            for func in self.subs[name]:
+                func(data)
+
+# Component A: The Logic
+class Greeter:
+    def __init__(self, em):
+        self.em = em
+        em.subscribe('new_user', self.make_greeting)
+
+    def make_greeting(self, name):
+        # Logic: Transform input -> output
+        msg = f"Hello, {name}!"
+        # Publish result. Greeter doesn't know who will print this.
+        self.em.publish('print_this', msg)
+
+# Component B: The Output
+class Printer:
+    def __init__(self, em):
+        # Subscribe directly to the event
+        em.subscribe('print_this', self.display)
+
+    def display(self, text):
+        print(f"--> {text}")
+
+# Wiring
+board = EventManager()
+Greeter(board)
+Printer(board)
+
+# Trigger
+board.publish('new_user', 'Alice')
 ```
 
 ### Exercise: Refactor to the Bulletin Board Style
