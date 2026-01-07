@@ -14,12 +14,12 @@ The answer is that AI tools are not magic code generators; they are **Paradigm T
 
 To use AI effectively, you must transition from being a "Code Writer" to a **Software Architect**. Your role shifts from typing syntax to:
 1.  **Specification:** Defining the constraints and interface (The Prompt).
-2.  **?? Architecture:** Decomposing complex problems into manageable, well-structured components (The System).
+2.  **Architecture:** Decomposing complex problems into manageable, well-structured components (The System).
 3.  **?? Verification:** Critically auditing the generated code for subtle flaws and paradigm violations (The Review).
 
 ## Table of contents
 - [1. AI as a Paradigm Translator](#1-ai-as-a-paradigm-translator)
-- [2. ?? Architecting Systems](#2-architecting-systems)
+- [2. Modular Architecture & Decomposition](#2-modular-architecture-&-decomposition)
 - [3. ?? The Paradigm Audit](#3-the-paradigm-audit)
 
 ---
@@ -231,3 +231,374 @@ A Glider is useful for visual testing because it moves across the board:
 `{(1, 0), (2, 1), (0, 2), (1, 2), (2, 2)}`
 
 </details>
+
+---
+
+## 2. Modular Architecture & Decomposition
+
+The most common failure mode when using LLMs for software construction is **Context Pollution**. Large Language Models operate on probability, not understanding. As your codebase grows within a single chat session, the "noise" increases.
+
+To build complex software with AI, you must transition from a "Code Writer" to a **System Decomposition Architect**. You must break the system into isolated "Black Boxes" where the AI only sees the specific context it needs to work on.
+
+### The Blueprint: A Top-Down RPG
+
+We will build a text-based exploration game. To ensure the AI generates robust code, we define strict **Boundaries** before generation begins:
+
+1.  **`Player`:** Pure State (Coordinates). It has *no idea* the map exists.
+2.  **`WorldMap`:** Pure Data & Topology. It has *no idea* the player exists.
+3.  **`GameLoop` (Controller):** The Logic Glue. It listens to inputs and orchestrates the interaction between Player and Map.
+
+### Phase 1: The Base Implementation (Empty World)
+
+Our first iteration is a simple walking simulator. We want a world where the player wraps around the edges (Toroidal topology).
+
+Instead of asking the AI for "an RPG," we prompt for specific components:
+1.  **Map:** "Create a `WorldMap` class. It must have a method `get_wrapped_coords(x, y)` that returns the modulo coordinate."
+2.  **Player:** "Create a dumb `Player` class. It only stores `x, y`."
+3.  **Controller:** "Write a loop that calculates the *intended* move, passes it through the wrapper, and updates the player."
+
+This results in a clean separation of concerns:
+
+```python
+import os
+
+class Player:
+    """Model: Pure State (Coordinates only)"""
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+        self.symbol = "@"
+
+    def move_to(self, x, y):
+        self.x = x
+        self.y = y
+
+class WorldMap:
+    """Model: Data & Topology"""
+    def __init__(self, width, height):
+        self.width = width
+        self.height = height
+
+    def get_wrapped_coords(self, x, y):
+        """Handles the 'Infinite World' logic via modulo arithmetic."""
+        return x % self.width, y % self.height
+
+def render(player, world):
+    """View: Pure Transformation (State -> String)"""
+    output = []
+    output.append("+" + "-" * (world.width * 2 + 1) + "+")
+    
+    for y in range(world.height):
+        row = "| "
+        for x in range(world.width):
+            if player.x == x and player.y == y:
+                row += f"{player.symbol} "
+            else:
+                row += "  "
+        row += "|"
+        output.append(row)
+    
+    output.append("+" + "-" * (world.width * 2 + 1) + "+")
+    return "\n".join(output)
+
+def run_game():
+    """Controller: Input & Orchestration"""
+    world = WorldMap(20, 20)
+    player = Player(10, 10)
+
+    while True:
+        os.system('cls' if os.name == 'nt' else 'clear')
+        print(render(player, world))
+        print("WASD to move, Q to quit.")
+
+        key = input(">> ").lower().strip()
+        if key == 'q': break
+
+        # 1. Calculate Intent
+        dx, dy = 0, 0
+        if key == 'w': dy = -1
+        if key == 's': dy = 1
+        if key == 'a': dx = -1
+        if key == 'd': dx = 1
+
+        # 2. Apply World Topology (Wrapping)
+        # Note: We wrap *before* setting the player position
+        target_x, target_y = world.get_wrapped_coords(player.x + dx, player.y + dy)
+        
+        # 3. Update State (No collision check needed yet)
+        player.move_to(target_x, target_y)
+
+if __name__ == "__main__":
+    run_game()
+```
+
+### Phase 2: Managing Complexity (Adding Mountains)
+
+Now we must add obstacles. A beginner might paste the entire code into an LLM and ask: *"Add mountains that block the player."*
+
+This often leads to bad code. The AI might write collision logic inside the `Player` class (Tight Coupling) or break the wrapping logic.
+
+**The Architect's Approach:**
+We identify that this request touches two specific areas, and we handle them individually.
+
+1.  **The Data:** We ask the AI to update *only* the `WorldMap` class to include a set of mountain coordinates and an `is_blocked(x, y)` method.
+2.  **The Logic:** We update the `Controller` to check `is_blocked` before moving.
+
+Notice in the code below that the `Player` class remains untouched. This is the definition of good architecture: changing the world rules did not require changing the player object.
+
+```python
+import os
+import random
+
+class Player:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+        self.symbol = "@"
+
+    def move_to(self, x, y):
+        self.x = x
+        self.y = y
+
+class WorldMap:
+    def __init__(self, width, height, mountain_density=0.15):
+        self.width = width
+        self.height = height
+        self.mountains = set()
+        self._generate_terrain(mountain_density)
+
+    def _generate_terrain(self, density):
+        """Generates random obstacles."""
+        count = int(self.width * self.height * density)
+        while len(self.mountains) < count:
+            rx = random.randint(0, self.width - 1)
+            ry = random.randint(0, self.height - 1)
+            self.mountains.add((rx, ry))
+
+    def get_wrapped_coords(self, x, y):
+        return x % self.width, y % self.height
+
+    def is_blocked(self, x, y):
+        """New Interface Method: Checks for obstacles."""
+        return (x, y) in self.mountains
+
+def render(player, world):
+    output = []
+    output.append("+" + "-" * (world.width * 2 + 1) + "+")
+    
+    for y in range(world.height):
+        row = "| "
+        for x in range(world.width):
+            if player.x == x and player.y == y:
+                row += f"{player.symbol} "
+            elif (x, y) in world.mountains:
+                row += "# " # New Render Logic
+            else:
+                row += "  "
+        row += "|"
+        output.append(row)
+    
+    output.append("+" + "-" * (world.width * 2 + 1) + "+")
+    return "\n".join(output)
+
+def run_game():
+    world = WorldMap(20, 20)
+    # Ensure player doesn't spawn in a mountain
+    start_x, start_y = 10, 10
+    while world.is_blocked(start_x, start_y):
+        world = WorldMap(20, 20) # Simple retry logic for init
+        
+    player = Player(start_x, start_y)
+
+    while True:
+        os.system('cls' if os.name == 'nt' else 'clear')
+        print(render(player, world))
+        print(f"Pos: {player.x},{player.y}. WASD to move, Q to quit.")
+
+        key = input(">> ").lower().strip()
+        if key == 'q': break
+
+        dx, dy = 0, 0
+        if key == 'w': dy = -1
+        if key == 's': dy = 1
+        if key == 'a': dx = -1
+        if key == 'd': dx = 1
+
+        # 1. Calculate Wraparound Coordinates
+        dest_x, dest_y = world.get_wrapped_coords(player.x + dx, player.y + dy)
+
+        # 2. Collision Check
+        # We check the *destination* coordinate
+        if not world.is_blocked(dest_x, dest_y):
+            player.move_to(dest_x, dest_y)
+        else:
+            # Blocked! Do nothing (or print "Bonk!")
+            pass
+
+if __name__ == "__main__":
+    run_game()
+```
+
+### Phase 3: The "Black Box" Refactor (Algorithm Injection)
+
+The current map generation uses random noise (TV static), which looks unnatural. We want cave-like structures.
+
+This highlights the power of the **Black Box** approach. We can instruct the AI to completely rewrite the *internals* of the `WorldMap` generation using a complex algorithm (Cellular Automata), while enforcing that the *public interface* remains identical.
+
+Because the Interface Contract is preserved, we don't even need to verify the `GameLoop` code. We know it will still work.
+
+**The Prompt:** *Refactor the `_generate_terrain` method. Instead of random scatter, implement Cellular Automata smoothing. Initialize the grid with 50% noise, then run 2 iterations of smoothing where a cell becomes a wall if it has > 4 neighbors.*
+
+```python
+import os
+import random
+
+class Player:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+        self.symbol = "@"
+
+    def move_to(self, x, y):
+        self.x = x
+        self.y = y
+
+class WorldMap:
+    def __init__(self, width: int, height: int, mountain_density: float = 0.5):
+        self.width = width
+        self.height = height
+        self.mountains = set()
+        
+        # We changed the initialization logic, but kept the constructor signature compatible
+        self._generate_cellular_automata(mountain_density)
+
+    def _generate_cellular_automata(self, density: float):
+        """
+        REFACTOR: Uses Cellular Automata to create organic caves.
+        Algorithm:
+        1. Fill map with random noise.
+        2. Smooth the noise: A cell becomes a wall if it has > 4 wall neighbors.
+        """
+        # 1. Initialization: Random Noise
+        for y in range(self.height):
+            for x in range(self.width):
+                if random.random() < density:
+                    self.mountains.add((x, y))
+
+        # 2. Smoothing Iterations (Simulation)
+        iterations = 2
+        for _ in range(iterations):
+            new_mountains = set()
+            for y in range(self.height):
+                for x in range(self.width):
+                    neighbors = self._count_wall_neighbors(x, y)
+                    # The "4-5 Rule": If more than 4 neighbors are walls, this becomes a wall.
+                    # This smooths out the noise into clumps.
+                    if neighbors > 4:
+                        new_mountains.add((x, y))
+            self.mountains = new_mountains
+
+    def _count_wall_neighbors(self, x, y):
+        count = 0
+        for dy in [-1, 0, 1]:
+            for dx in [-1, 0, 1]:
+                if dx == 0 and dy == 0: continue
+                
+                # Wrap neighbor coordinates around the edges
+                nx = (x + dx) % self.width
+                ny = (y + dy) % self.height
+                
+                if (nx, ny) in self.mountains:
+                    count += 1
+        return count
+
+    def get_wrapped_coords(self, x, y):
+        return x % self.width, y % self.height
+
+    def is_blocked(self, x, y):
+        # The Contract remains strictly preserved
+        return (x, y) in self.mountains
+
+def render(player, world):
+    output = []
+    output.append("+" + "-" * (world.width * 2 + 1) + "+")
+    
+    for y in range(world.height):
+        row = "| "
+        for x in range(world.width):
+            if player.x == x and player.y == y:
+                row += f"{player.symbol} "
+            elif (x, y) in world.mountains:
+                row += "# " # New Render Logic
+            else:
+                row += "  "
+        row += "|"
+        output.append(row)
+    
+    output.append("+" + "-" * (world.width * 2 + 1) + "+")
+    return "\n".join(output)
+
+def run_game():
+    world = WorldMap(20, 20)
+    # Ensure player doesn't spawn in a mountain
+    start_x, start_y = 10, 10
+    while world.is_blocked(start_x, start_y):
+        world = WorldMap(20, 20) # Simple retry logic for init
+        
+    player = Player(start_x, start_y)
+
+    while True:
+        os.system('cls' if os.name == 'nt' else 'clear')
+        print(render(player, world))
+        print(f"Pos: {player.x},{player.y}. WASD to move, Q to quit.")
+
+        key = input(">> ").lower().strip()
+        if key == 'q': break
+
+        dx, dy = 0, 0
+        if key == 'w': dy = -1
+        if key == 's': dy = 1
+        if key == 'a': dx = -1
+        if key == 'd': dx = 1
+
+        # 1. Calculate Wraparound Coordinates
+        dest_x, dest_y = world.get_wrapped_coords(player.x + dx, player.y + dy)
+
+        # 2. Collision Check (The Student's main logic task)
+        # We check the *destination* coordinate
+        if not world.is_blocked(dest_x, dest_y):
+            player.move_to(dest_x, dest_y)
+        else:
+            # Blocked! Do nothing (or print "Bonk!")
+            pass
+
+if __name__ == "__main__":
+    run_game()
+```
+
+### Exercise: Extending the System
+
+You have seen how to modify the map (Data) and the controller (Logic). Your final task is to add a completely new system to the game.
+
+Below are some ideas. Your challenge is not just to generate the code, but to **Design the Interface** before you begin. You must decide where the state lives and how it interacts with the existing loop.
+
+1.  **Mining (Destructive Environment):**
+    *   *Feature:* Input `dd` allows the player to remove a mountain at the coordinate right from the player (`ss` would mine below the player, `aa` left, `ww` up).
+    *   *Architectural Challenge:* The map is currently immutable after generation. How do you safely expose a `remove_obstacle` method? How does the controller parse a two-character command?
+
+2.  **Gold & Score (Data Overlay):**
+    *   *Feature:* "Coins" (`*`) spawn on empty tiles. Walking over them collects them.
+    *   *Architectural Challenge:* Do coins belong in the `WorldMap`? Or should you create a new `ItemManager` class? (Hint: Separate terrain from loot).
+
+3.  **Enemies (Dynamic Entities):**
+    *   *Feature:* Enemies (`X`) spawn on the map. Every time the player moves, the enemies move one step randomly.
+    *   *Architectural Challenge:* You need an entity list manager. The enemies also need to check for collisions - how do you pass the `WorldMap` to the `EnemyManager`?
+
+4.  **Pushable Stones (Sokoban Physics):**
+    *   *Feature:* Stones (`O`) block movement, but if the space behind the stone is empty, the player pushes the stone.
+    *   *Architectural Challenge:* Recursive logic. The controller must check: `Input -> Stone (Exists?) -> Behind Stone (Empty?)`.
+
+**Workflow:**
+1.  **Draft:** Write the class signature or function definition first.
+2.  **Generate:** Ask the AI to implement that specific component.
+3.  **Integrate:** Manually wire it into `run_game()`, or use AI.
