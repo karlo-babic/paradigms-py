@@ -255,9 +255,9 @@ Our first iteration is a simple walking simulator. We want a world where the pla
 While you *could* simply ask the AI to "write a game" and then ask it to refactor the code into classes (the **Translator** workflow from Section 1), defining the architecture *before* generation gives us significantly better control. It prevents the AI from generating bad that we have to untangle later.
 
 **The Prompt:**
-> "Create a simple top-down ASCII RPG in Python using an **Object-Oriented** approach.
+> Create a simple top-down ASCII RPG in Python using an Object-Oriented approach.
 > The code must contain four distinct components:
-> 1. A `WorldMap` class that handles the grid dimensions and logic for **coordinate wrapping** (Toroidal topology).
+> 1. A `WorldMap` class that handles the grid dimensions and logic for coordinate wrapping (Toroidal topology).
 > 2. A `Player` class that simply holds coordinates.
 > 3. A `render` function that takes the player and map and returns the grid string.
 > 4. A `run_game` function containing the main loop and WASD input handling.
@@ -347,10 +347,10 @@ This often leads to bad code. The AI might write collision logic inside the `Pla
 We define the feature requirements based on our architecture and ask the AI to output the necessary updates.
 
 **The Prompt:**
-*Update the RPG to support Mountains.
-`WorldMap`: Generate random obstacles (#) and add an `is_blocked(x,y)` method.
-`render`: Draw mountains as '#'.
-`run_game`: Prevent the player from moving into mountains.*
+> Update the RPG to support Mountains.
+> `WorldMap`: Generate random obstacles (#) and add an `is_blocked(x,y)` method.
+> `render`: Draw mountains as '#'.
+> `run_game`: Prevent the player from moving into mountains.*
 
 Notice in the code below that the `Player` class remains untouched. This is the definition of good architecture: changing the world rules did not require changing the player object.
 
@@ -455,7 +455,8 @@ This highlights the power of the **Black Box** approach. We can instruct the AI 
 
 Because the Interface Contract is preserved, we don't even need to verify the `GameLoop` code. We know it will still work.
 
-**The Prompt:** *Refactor the `_generate_terrain` method. Instead of random scatter, implement Cellular Automata smoothing. Initialize the grid with noise, then run 2 iterations of smoothing where a cell becomes a wall if it has > 4 neighbors.*
+**The Prompt:**
+> Refactor the `_generate_terrain` method. Instead of random scatter, implement Cellular Automata smoothing. Initialize the grid with noise, then run 2 iterations of smoothing where a cell becomes a wall if it has > 4 neighbors.
 
 ```python
 import os
