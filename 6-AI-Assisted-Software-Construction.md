@@ -19,7 +19,7 @@ To use AI effectively, you must transition from being a "Code Writer" to a **Sof
 
 ## Table of contents
 - [1. AI as a Paradigm Translator](#ai-as-a-paradigm-translator)
-- [2. Modular Architecture & Decomposition](#modular-architecture-amp-decompositionn)
+- [2. Modular Architecture & Decomposition](#modular-architecture-amp-decomposition)
 - [3. ?? The Paradigm Audit](#3-the-paradigm-audit)
 
 ---
