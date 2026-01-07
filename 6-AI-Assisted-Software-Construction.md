@@ -334,15 +334,18 @@ if __name__ == "__main__":
 
 ### Phase 2: Managing Complexity (Adding Mountains)
 
-Now we must add obstacles. A beginner might paste the entire code into an LLM and ask: *"Add mountains that block the player."*
+Now we must add obstacles. A beginner might paste the entire code into an LLM and ask: *"Add mountains that block the player."* While this approach often works for small scripts like this one, it struggles significantly with larger codebases.
 
 This often leads to bad code. The AI might write collision logic inside the `Player` class (Tight Coupling) or break the wrapping logic.
 
 **The Architect's Approach:**
-We identify that this request touches two specific areas, and we handle them individually.
+We define the feature requirements based on our architecture and ask the AI to output the necessary updates.
 
-1.  **The Data:** We ask the AI to update *only* the `WorldMap` class to include a set of mountain coordinates and an `is_blocked(x, y)` method.
-2.  **The Logic:** We update the `Controller` to check `is_blocked` before moving.
+**The Prompt:**
+*Update the RPG to support Mountains.
+`WorldMap`: Generate random obstacles (#) and add an `is_blocked(x,y)` method.
+`render`: Draw mountains as '#'.
+`run_game`: Prevent the player from moving into mountains.*
 
 Notice in the code below that the `Player` class remains untouched. This is the definition of good architecture: changing the world rules did not require changing the player object.
 
@@ -447,7 +450,7 @@ This highlights the power of the **Black Box** approach. We can instruct the AI 
 
 Because the Interface Contract is preserved, we don't even need to verify the `GameLoop` code. We know it will still work.
 
-**The Prompt:** *Refactor the `_generate_terrain` method. Instead of random scatter, implement Cellular Automata smoothing. Initialize the grid with 50% noise, then run 2 iterations of smoothing where a cell becomes a wall if it has > 4 neighbors.*
+**The Prompt:** *Refactor the `_generate_terrain` method. Instead of random scatter, implement Cellular Automata smoothing. Initialize the grid with noise, then run 2 iterations of smoothing where a cell becomes a wall if it has > 4 neighbors.*
 
 ```python
 import os
