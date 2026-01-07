@@ -252,10 +252,15 @@ We will build a text-based exploration game. To ensure the AI generates robust c
 
 Our first iteration is a simple walking simulator. We want a world where the player wraps around the edges (Toroidal topology).
 
-Instead of asking the AI for "an RPG," we prompt for specific components:
-1.  **Map:** "Create a `WorldMap` class. It must have a method `get_wrapped_coords(x, y)` that returns the modulo coordinate."
-2.  **Player:** "Create a dumb `Player` class. It only stores `x, y`."
-3.  **Controller:** "Write a loop that calculates the *intended* move, passes it through the wrapper, and updates the player."
+While you *could* simply ask the AI to "write a game" and then ask it to refactor the code into classes (the **Translator** workflow from Section 1), defining the architecture *before* generation gives us significantly better control. It prevents the AI from generating bad that we have to untangle later.
+
+**The Prompt:**
+> "Create a simple top-down ASCII RPG in Python using an **Object-Oriented** approach.
+> The code must contain four distinct components:
+> 1. A `WorldMap` class that handles the grid dimensions and logic for **coordinate wrapping** (Toroidal topology).
+> 2. A `Player` class that simply holds coordinates.
+> 3. A `render` function that takes the player and map and returns the grid string.
+> 4. A `run_game` function containing the main loop and WASD input handling.
 
 This results in a clean separation of concerns:
 
