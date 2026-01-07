@@ -18,8 +18,8 @@ To use AI effectively, you must transition from being a "Code Writer" to a **Sof
 3.  **?? Verification:** Critically auditing the generated code for subtle flaws and paradigm violations (The Review).
 
 ## Table of contents
-- [1. AI as a Paradigm Translator](#1-ai-as-a-paradigm-translator)
-- [2. Modular Architecture & Decomposition](#2-modular-architecture-&-decomposition)
+- [1. AI as a Paradigm Translator](#ai-as-a-paradigm-translator)
+- [2. Modular Architecture & Decomposition](#modular-architecture-amp-decompositionn)
 - [3. ?? The Paradigm Audit](#3-the-paradigm-audit)
 
 ---
