@@ -350,7 +350,7 @@ We define the feature requirements based on our architecture and ask the AI to o
 > Update the RPG to support Mountains.
 > `WorldMap`: Generate random obstacles (#) and add an `is_blocked(x,y)` method.
 > `render`: Draw mountains as '#'.
-> `run_game`: Prevent the player from moving into mountains.*
+> `run_game`: Prevent the player from moving into mountains.
 
 Notice in the code below that the `Player` class remains untouched. This is the definition of good architecture: changing the world rules did not require changing the player object.
 
