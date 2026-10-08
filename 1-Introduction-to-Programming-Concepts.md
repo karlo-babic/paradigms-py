@@ -161,6 +161,8 @@ For problems that require very deep recursion, a Python programmer would typical
 #### Exercise: The Fibonacci Sequence
 The Fibonacci sequence is another famous mathematical sequence defined recursively: `F(n) = F(n-1) + F(n-2)`, with the base cases `F(0) = 0` and `F(1) = 1`.
 
+The sequence begins: `0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, ...`
+
 - Write a Python function `fib(n)` that calculates the nth Fibonacci number.
 <details>
 <summary>Hint</summary>
